@@ -5,10 +5,10 @@ namespace webbshop
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            WebbShop webbShop = new WebbShop();
-            webbShop.StartWebbShop();
+            WebShop webShop = new WebShop();
+            await webShop.StartWebShop();
         }
     }
 }

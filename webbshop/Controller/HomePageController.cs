@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using webbshop.Models;
 using webbshop.UI;
 using static webbshop.UI.HomePage;
 
@@ -10,10 +12,32 @@ namespace webbshop.Controller
 {
     internal class HomePageController : IController
     {
-        public IController ActivateController()
+        private User? User;
+        public HomePageController(User? user = null)
         {
-            HomePage page = new HomePage();
-            page.Render();
+            User = user;
+        }
+        public async Task<IController> ActivateController()
+        {
+
+            Product[] selectedProducts = new Product[3];
+            HomePage page = new HomePage(selectedProducts, User);
+            
+            using (var db = new ShopDbContext())
+            {
+                var selectedProductsTask = db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
+
+                page.Render();
+
+                selectedProducts = await selectedProductsTask;
+                page = new HomePage(selectedProducts, User);
+                page.Render();
+
+            }
+
+            
+
+
             while (true)
             {
                 int? option = InputHelper.GetIntFromUser("", true);
@@ -26,8 +50,13 @@ namespace webbshop.Controller
                     switch ((Buttons)option)
                     {
                         case Buttons.Category:
-                            return new CategoryController();
+                            return new CategoryController(User);
+                        case Buttons.Login:
+                            return new LoginController(User);
+                        case Buttons.AdminPanel:
+                            break;
                         default:
+                            page.Render();
                             break;
                     }
                 }

@@ -7,14 +7,14 @@ using webbshop.Controller;
 
 namespace webbshop
 {
-    internal class WebbShop
+    internal class WebShop
     {
-        public void StartWebbShop()
+        public async Task StartWebShop()
         {
             IController currentController = new HomePageController();
             while (true)
             {
-                currentController = currentController.ActivateController();
+                currentController = await currentController.ActivateController();
             }
         }
     }

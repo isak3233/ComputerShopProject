@@ -6,28 +6,29 @@ using System.Text;
 using System.Threading.Tasks;
 using webbshop.Models;
 using webbshop.UI;
-using static webbshop.UI.CategoryPage;
+using static webbshop.UI.ShopPage;
+
 
 namespace webbshop.Controller
 {
-    internal class CategoryController : IController
+    public class ShopController : IController
     {
-        private User? User;
-        public CategoryController(User? user)
+        private Category Category;
+        public ShopController(Category category)
         {
-            User = user;
+            Category = category;
         }
         public async Task<IController> ActivateController()
         {
-            Category[] categories = new Category[3];
-            CategoryPage page = new CategoryPage(categories);
+            var loadingProducts = GetProductsFromCategory(Category);
+            ShopPage page = new ShopPage(null);
             page.Render();
-            using (var db = new ShopDbContext())
-            {
-                categories = await db.Categories.ToArrayAsync();
-                page = new CategoryPage(categories);
-                page.Render();
-            }
+
+            var products = await loadingProducts;
+            page = new ShopPage(products);
+            page.Render();
+
+
             while (true)
             {
                 int? option = InputHelper.GetIntFromUser("", true);
@@ -40,19 +41,22 @@ namespace webbshop.Controller
                     option -= 1;
                     switch ((Buttons)option)
                     {
-                        case Buttons.HomePage:
-                            return new HomePageController(User);
-                        case Buttons.Category1:
-                           
-                            return new ShopController(categories[0]);
+                        
                         default:
+                            page.Render();
                             break;
-
                     }
                 }
 
             }
         }
-        
+        public async Task<Product[]> GetProductsFromCategory(Category category)
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.Products.Where(p => p.CategoryId == category.Id).ToArrayAsync();
+            }
+        }
+
     }
 }

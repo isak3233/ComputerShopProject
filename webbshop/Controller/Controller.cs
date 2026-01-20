@@ -8,6 +8,6 @@ namespace webbshop.Controller
 {
     public interface IController
     {
-        public IController ActivateController();
+        public Task<IController> ActivateController();
     }
 }

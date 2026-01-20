@@ -17,15 +17,31 @@ namespace webbshop
                 if (int.TryParse(input, out int number))
                 {
                     return number;
-                } else if(input == "")
+                } else if(returnIfEmpty && input == "")
                 {
                     return null;
                 } else
                 {
-                    Console.WriteLine("Skriv in ett nummer");
+                    Console.WriteLine(inputString);
                 }
             }
             
         }
+        public static string GetStringFromUser(string inputString = "Skriv något:", string errorString = "input är tomt")
+        {
+            while(true)
+            {
+                Console.Write(inputString);
+                string? input = Console.ReadLine();
+                if(input != "" && input != null)
+                {
+                    return input;
+                } else
+                {
+                    Console.WriteLine(errorString);
+                }
+            }
+        }
+        
     }
 }

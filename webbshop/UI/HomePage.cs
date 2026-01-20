@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using webbshop.Models;
 
 namespace webbshop.UI
 {
@@ -16,30 +17,55 @@ namespace webbshop.UI
             Category,
             Selected1,
             Selected2,
-            Selected3
+            Selected3,
+            AdminPanel
         }
-        public HomePage()
+        public HomePage(Product[] selectedProducts, User? user = null)
         {
-            var welcomeWindow = new Window("", 10, 0, new List<string> { "Välkommen till Datorbutiken" });
+            var welcomeWindow = new Window("", 10, 0, new List<string> { user == null ? "Välkommen till datorbutiken!" : "Välkommen till datorbutiken " + user.FirstName });
             Windows.Add(welcomeWindow);
 
-            var loginWindow = new Window("(1)", 100, 0, new List<string> { "Logga in" });
-            Windows.Add(loginWindow);
+            if(user == null)
+            {
+                var loginWindow = new Window("(1)", 100, 0, new List<string> { "Logga in" });
+                Windows.Add(loginWindow);
+            } else
+            {
+                var logoutWindow = new Window("(1)", 100, 0, new List<string> { "Logga ut" });
+                Windows.Add(logoutWindow);
+
+                if (user.IsAdmin)
+                {
+                    var adminWindow = new Window("(7)", 100, 100, new List<string> { "Gå till admin panel" });
+                    Windows.Add(adminWindow);
+                }
+            }
 
             var cartWindow = new Window("(2)", 90, 0, new List<string> { "Kundvagn" });
             Windows.Add(cartWindow);
 
             var categoryWindow = new Window("(3)", 60, 40, new List<string> { "Gå till Kategorier" });
             Windows.Add(categoryWindow);
+            if (selectedProducts[0] == null)
+            {
+                for(int i = 0; i < 3; i++)
+                {
+                    var selectedProductInfo = new Window($"Erbjudande {i + 1} ({i + 4})", 40 + (i) * 20, 80, new List<string> { "Laddar"});
+                    Windows.Add(selectedProductInfo);
+                }
+            } else
+            {
+                int index = 1;
+                foreach (var selectedProduct in selectedProducts)
+                {
+                    var selectedProductInfo = new Window($"Erbjudande {index} ({index + 3})", 40 + (index - 1) * 20, 80, new List<string> { selectedProduct.Name, selectedProduct.Price.ToString() + "kr" });
+                    Windows.Add(selectedProductInfo);
+                    index++;
+                }
+            }
 
-            var selectedProduct1 = new Window("Erbjudande 1 (4)", 40, 80, new List<string> { "RAM DDR4 32GB", "1,000kr" });
-            Windows.Add(selectedProduct1);
-
-            var selectedProduct2 = new Window("Erbjudande 2 (5)", 60, 80, new List<string> { "GPU 4070TI", "10,000kr" });
-            Windows.Add(selectedProduct2);
-
-            var selectedProduct3 = new Window("Erbjudande 3 (6)", 80, 80, new List<string> { "Skärm 144hz", "1,500kr" });
-            Windows.Add(selectedProduct3);
+            
+                
 
         }
         

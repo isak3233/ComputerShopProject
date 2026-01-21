@@ -20,12 +20,12 @@ namespace webbshop.UI
             Selected3,
             AdminPanel
         }
-        public HomePage(Product[] selectedProducts, User? user = null)
+        public HomePage(Product[] selectedProducts)
         {
-            var welcomeWindow = new Window("", 10, 0, new List<string> { user == null ? "Välkommen till datorbutiken!" : "Välkommen till datorbutiken " + user.FirstName });
+            var welcomeWindow = new Window("", 10, 0, new List<string> { Cookie.User == null ? "Välkommen till datorbutiken!" : "Välkommen till datorbutiken " + Cookie.User.FirstName });
             Windows.Add(welcomeWindow);
 
-            if(user == null)
+            if(Cookie.User == null)
             {
                 var loginWindow = new Window("(1)", 100, 0, new List<string> { "Logga in" });
                 Windows.Add(loginWindow);
@@ -34,15 +34,18 @@ namespace webbshop.UI
                 var logoutWindow = new Window("(1)", 100, 0, new List<string> { "Logga ut" });
                 Windows.Add(logoutWindow);
 
-                if (user.IsAdmin)
+                if (Cookie.User.IsAdmin)
                 {
                     var adminWindow = new Window("(7)", 100, 100, new List<string> { "Gå till admin panel" });
                     Windows.Add(adminWindow);
                 }
             }
-
-            var cartWindow = new Window("(2)", 90, 0, new List<string> { "Kundvagn" });
-            Windows.Add(cartWindow);
+            if(Cookie.User != null)
+            {
+                var cartWindow = new Window("(2)", 90, 0, new List<string> { "Kundvagn" });
+                Windows.Add(cartWindow);
+            }
+            
 
             var categoryWindow = new Window("(3)", 60, 40, new List<string> { "Gå till Kategorier" });
             Windows.Add(categoryWindow);
@@ -58,7 +61,7 @@ namespace webbshop.UI
                 int index = 1;
                 foreach (var selectedProduct in selectedProducts)
                 {
-                    var selectedProductInfo = new Window($"Erbjudande {index} ({index + 3})", 40 + (index - 1) * 20, 80, new List<string> { selectedProduct.Name, selectedProduct.Price.ToString() + "kr" });
+                    var selectedProductInfo = new Window($"Erbjudande {index} ({index + 3})", 30 + (index - 1) * 30, 80, new List<string> { selectedProduct.Name, selectedProduct.Price.ToString() + "kr" });
                     Windows.Add(selectedProductInfo);
                     index++;
                 }

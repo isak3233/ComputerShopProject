@@ -37,7 +37,7 @@ namespace webbshop.UI
                         row++;
                         col = 0;
                     }
-                    var productW = new Window($"({index})", 20 + 30 * (col), 30 + 20 * row, new List<string> { product.Name, product.Price.ToString() + "kr", "Visa mer info ->" });
+                    var productW = new Window($"({index + 1})", 20 + 30 * (col), 30 + 20 * row, new List<string> { product.Name, product.Price.ToString() + "kr", "Visa mer info ->" });
                     Windows.Add(productW);
                     index++;
                     col++;

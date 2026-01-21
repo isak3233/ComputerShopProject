@@ -108,9 +108,10 @@ namespace webbshop.Controller
                                 try
                                 {
                                     await RegisterUser(newUser);
+                                    Cookie.User = newUser;
                                     Console.WriteLine("Användaren registerad");
                                     Console.ReadLine();
-                                    return new HomePageController(newUser);
+                                    return new HomePageController();
                                 } catch(Exception ex)
                                 {
                                     Console.WriteLine(ex.ToString());
@@ -152,7 +153,10 @@ namespace webbshop.Controller
             using(var db = new ShopDbContext())
             {
                 if (await db.Users.AnyAsync(u => u.Email == user.Email))
+                {
                     throw new InvalidOperationException("Email används redan");
+                }
+                    
                 user.City = null;
                 db.Users.Add(user);
                 await db.SaveChangesAsync();

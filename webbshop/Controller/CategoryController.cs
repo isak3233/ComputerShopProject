@@ -12,11 +12,7 @@ namespace webbshop.Controller
 {
     internal class CategoryController : IController
     {
-        private User? User;
-        public CategoryController(User? user)
-        {
-            User = user;
-        }
+        
         public async Task<IController> ActivateController()
         {
             Category[] categories = new Category[3];
@@ -41,7 +37,7 @@ namespace webbshop.Controller
                     switch ((Buttons)option)
                     {
                         case Buttons.HomePage:
-                            return new HomePageController(User);
+                            return new HomePageController();
                         case Buttons.Category1:
                            
                             return new ShopController(categories[0]);

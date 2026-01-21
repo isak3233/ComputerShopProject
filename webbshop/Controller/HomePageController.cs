@@ -12,25 +12,17 @@ namespace webbshop.Controller
 {
     internal class HomePageController : IController
     {
-        private User? User;
-        public HomePageController(User? user = null)
-        {
-            User = user;
-        }
         public async Task<IController> ActivateController()
         {
 
             Product[] selectedProducts = new Product[3];
-            HomePage page = new HomePage(selectedProducts, User);
-            
+            HomePage page = new HomePage(selectedProducts);
+            page.Render();
+
             using (var db = new ShopDbContext())
             {
-                var selectedProductsTask = db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
-
-                page.Render();
-
-                selectedProducts = await selectedProductsTask;
-                page = new HomePage(selectedProducts, User);
+                selectedProducts = await db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
+                page = new HomePage(selectedProducts);
                 page.Render();
 
             }
@@ -50,11 +42,37 @@ namespace webbshop.Controller
                     switch ((Buttons)option)
                     {
                         case Buttons.Category:
-                            return new CategoryController(User);
+                            return new CategoryController();
                         case Buttons.Login:
-                            return new LoginController(User);
+                            return new LoginController();
+                        case Buttons.Cart:
+                            if(Cookie.User != null)
+                            {
+                                return new CartController();
+                            }
+                            break;
+                        case Buttons.Selected1:
+                            if(selectedProducts.Length >= 1)
+                            {
+                                return new ProductController(selectedProducts[0]);
+                            }
+                            break;
+                        case Buttons.Selected2:
+                            if (selectedProducts.Length >= 2)
+                            {
+                                return new ProductController(selectedProducts[1]);
+                            }
+                            break;
+                            
+                        case Buttons.Selected3:
+                            if (selectedProducts.Length >= 3)
+                            {
+                                return new ProductController(selectedProducts[2]);
+                            }
+                            break;
                         case Buttons.AdminPanel:
                             break;
+
                         default:
                             page.Render();
                             break;

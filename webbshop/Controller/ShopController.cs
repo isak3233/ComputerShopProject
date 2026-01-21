@@ -38,10 +38,19 @@ namespace webbshop.Controller
                 }
                 else
                 {
+                    if(option > 1 && (option - 2) < products.Length)
+                    {
+                        option -= 2;
+                        var selectedProduct = products[option.Value];
+                        return new ProductController(selectedProduct);
+
+                    }
+
                     option -= 1;
                     switch ((Buttons)option)
                     {
-                        
+                        case Buttons.Category:
+                            return new CategoryController();
                         default:
                             page.Render();
                             break;

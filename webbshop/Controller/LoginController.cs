@@ -12,15 +12,11 @@ namespace webbshop.Controller
 {
     public class LoginController : IController
     {
-        private User? User;
-        public LoginController(User? user = null)
-        {
-            User = user;
-        }
         public async Task<IController> ActivateController()
         {
-            if(User != null )
+            if(Cookie.User != null )
             {
+                Cookie.User = null;
                 return new HomePageController();
             }
             LoginPage page = new LoginPage();
@@ -62,7 +58,8 @@ namespace webbshop.Controller
                                 Console.WriteLine("Email eller lösenord är fel");
                             } else
                             {
-                                return new HomePageController(user);
+                                Cookie.User = user;
+                                return new HomePageController();
                             }
                             break;
                         case Buttons.Register:

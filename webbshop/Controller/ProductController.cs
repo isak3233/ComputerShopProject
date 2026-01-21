@@ -38,8 +38,11 @@ namespace webbshop.Controller
                     option -= 1;
                     switch ((Buttons)option)
                     {
-                        case Buttons.CategoryPage:
-                            return new CategoryController();
+                        case Buttons.Shop:
+                            // Skapar en category objekt bara med id för att shopcontroller ska kunna söka efter de andra produkterna med samma id
+                            Category tempCategory = new Category();
+                            tempCategory.Id = SelectedProduct.CategoryId;
+                            return new ShopController(tempCategory);
                         case Buttons.AddToCart:
                             if(Cookie.User != null)
                             {

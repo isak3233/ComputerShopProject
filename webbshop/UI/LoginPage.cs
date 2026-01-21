@@ -23,30 +23,14 @@ namespace webbshop.UI
             var backToHomePage = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till startsidan" });
             Windows.Add(backToHomePage);
 
+
+
+            var emailW = new Window("(2)", 50, 30, new List<string> { email == null ? "Email" : email });
+            Windows.Add(emailW);
+
+            var passwordW = new Window("(3)", 50, 40, new List<string> { password == null ? "Lösenord" : password});
+            Windows.Add(passwordW);
             
-
-
-
-            if (email == null)
-            {
-                var emailW = new Window("(2)", 50, 30, new List<string> { "Email" });
-                Windows.Add(emailW);
-            } else
-            {
-                var emailW = new Window("(2)", 50, 30, new List<string> { email });
-                Windows.Add(emailW);
-            }
-
-            if (password == null)
-            {
-                var passwordW = new Window("(3)", 50, 40, new List<string> { "Lösenord" });
-                Windows.Add(passwordW);
-            }
-            else
-            {
-                var passwordW = new Window("(3)", 50, 40, new List<string> { password });
-                Windows.Add(passwordW);
-            }
 
 
             var login = new Window("(4)", 50, 50, new List<string> { "Logga in" });

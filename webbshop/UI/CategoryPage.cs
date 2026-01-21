@@ -12,7 +12,9 @@ namespace webbshop.UI
         public enum Buttons
         {
             HomePage,
-            Category1
+            Category1,
+            Category2,
+            Category3,
         }
         public CategoryPage(Category[] categories)
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,15 +20,10 @@ namespace webbshop.Controller
             HomePage page = new HomePage(selectedProducts);
             page.Render();
 
-            using (var db = new ShopDbContext())
-            {
-                selectedProducts = await db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
-                page = new HomePage(selectedProducts);
-                page.Render();
+            selectedProducts = await GetSelectedProducts();
+            page = new HomePage(selectedProducts);
+            page.Render();
 
-            }
-
-            
 
 
             while (true)
@@ -81,6 +77,15 @@ namespace webbshop.Controller
                     
             }
 
+        }
+        private async Task<Product[]> GetSelectedProducts()
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
+                
+
+            }
         }
     }
 }

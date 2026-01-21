@@ -11,14 +11,14 @@ namespace webbshop.UI
     {
         public enum Buttons
         {
-            CategoryPage,
+            Shop,
             AddToCart
 
         }
         public ProductPage(Product product, bool productAddedToCart = false)
         {
-            var categoryW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till shop sidan " });
-            Windows.Add(categoryW);
+            var shopW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till shop sidan " });
+            Windows.Add(shopW);
 
             var productNameW = new Window("Produkt titel", 20, 30, new List<string> { product.Name });
             Windows.Add(productNameW);
@@ -43,10 +43,11 @@ namespace webbshop.UI
 
             if(productAddedToCart)
             {
-                var productAddedW = new Window("", 50, 80, new List<string> { "Produkten har lagts till i din varukorg" });
+                var productAddedW = new Window("", 50, 90, new List<string> { "Produkten har lagts till i din varukorg" });
                 Windows.Add(productAddedW);
             }
         }
+        // Metod som delar upp en lång sträng i mindre strängar och sedan lägger dom i en lista
         private List<string> BreakSentence(string text, int maxLength)
         {
             List<string> returnList = new List<string>();

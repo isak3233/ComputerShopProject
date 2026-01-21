@@ -34,17 +34,16 @@ namespace webbshop.UI
                 var logoutWindow = new Window("(1)", 100, 0, new List<string> { "Logga ut" });
                 Windows.Add(logoutWindow);
 
+                var cartWindow = new Window("(2)", 90, 0, new List<string> { "Kundvagn" });
+                Windows.Add(cartWindow);
+
                 if (Cookie.User.IsAdmin)
                 {
                     var adminWindow = new Window("(7)", 100, 100, new List<string> { "Gå till admin panel" });
                     Windows.Add(adminWindow);
                 }
             }
-            if(Cookie.User != null)
-            {
-                var cartWindow = new Window("(2)", 90, 0, new List<string> { "Kundvagn" });
-                Windows.Add(cartWindow);
-            }
+
             
 
             var categoryWindow = new Window("(3)", 60, 40, new List<string> { "Gå till Kategorier" });

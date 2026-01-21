@@ -20,6 +20,7 @@ namespace webbshop.UI
         }
         public DeliveryPage(DeliveryOption[]? deliveryOptions = null)
         {
+            // Om användaren har hoppat mellan fönster ser vi till att informationen dom skrev innan inte försvinner
             User? user = Cookie.DeliveryProcessUser;
             int selectedDeliveryOption = Cookie.DeliveryOption.Value;
 

@@ -53,6 +53,7 @@ namespace webbshop.Controller
                         case Buttons.Delivery:
                             return new DeliveryController();
                         case Buttons.Pay:
+                            // Sparar våran order, Tar bort produkterna från vagnen, Tar bort antalet produkter beställt från lager saldot
                             List<Task> tasks = new List<Task>();
                             foreach (var cartProduct in cartProducts)
                             {
@@ -71,13 +72,15 @@ namespace webbshop.Controller
                                 tasks.Add(RemoveFromStock(paymentHistory.ProductId, paymentHistory.Amount));
                             }
                             
+                            // Resetar cookie så nästa gång vid beställning använder den uppgifterna som är sparade under user objektet
                             Cookie.DeliveryProcessUser = null;
                             Cookie.DeliveryOption = null;
                             Cookie.SelectedPaymentOption = null;
-                            
-                            
 
-                            await Task.WhenAll(tasks); // Väntar på alla tasks som har startas
+
+                            // Väntar på alla tasks som har startas
+                            await Task.WhenAll(tasks); 
+
                             ThankYouPage thankYouPage = new ThankYouPage();
                             thankYouPage.Render();
                             Console.ReadLine();

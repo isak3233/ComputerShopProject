@@ -21,9 +21,12 @@ namespace webbshop.Controller
             {
                 Cookie.DeliveryOption = 0;
             }
+
             DeliveryPage page = new DeliveryPage();
             page.Render();
-            var user = await GetUserCountry(Cookie.User); // Lägger till country info så våran frakt page kan visa den informationen
+
+            // Lägger till country info i user objektet så våran frakt sida kan visa den informationen
+            var user = await GetUserCountry(Cookie.User); 
             if (Cookie.DeliveryProcessUser == null)
             {
                 Cookie.DeliveryProcessUser = user;
@@ -62,8 +65,8 @@ namespace webbshop.Controller
                         case Buttons.Cart:
                             return new CartController();
                         case Buttons.CityCountry:
-                            Country selectedCountry = await RegisterUserController.GetCountry(); // Återanvänder static metoder 
-                            City selectedCity = await RegisterUserController.GetCity(selectedCountry); // Återanvänder static metoder 
+                            Country selectedCountry = await RegisterUserController.GetCountry();
+                            City selectedCity = await RegisterUserController.GetCity(selectedCountry);
                             Cookie.DeliveryProcessUser.City = selectedCity;
                             Cookie.DeliveryProcessUser.City.Country = selectedCountry;
                             page = new DeliveryPage(deliveryOptions);

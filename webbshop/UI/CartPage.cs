@@ -30,6 +30,8 @@ namespace webbshop.UI
                 Windows.Add(noProductsW);
                 return;
             }
+
+            // Skriver ut all produkter
             int col = 0;
             int row = 0;
             for (int i = 0; i < cartProducts.Count; i++)
@@ -44,6 +46,8 @@ namespace webbshop.UI
                 Windows.Add(cartProductW);
                 col++;
             }
+
+            // Skriver ut det totala priset
             decimal total = 0;
             foreach(var cartProduct in cartProducts)
             {

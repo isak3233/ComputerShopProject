@@ -42,6 +42,34 @@ namespace webbshop
                 }
             }
         }
-        
+        static public int[] GetCartProductOptionFromUser()
+        {
+            while (true)
+            {
+
+                Console.WriteLine("Ta bort från kundvagn (1)");
+                Console.WriteLine("Ändra antal produkter (2)");
+                int? option = InputHelper.GetIntFromUser("Skriv alternativ: ", false);
+                switch (option)
+                {
+                    case 1:
+                        return new int[2] { 1, 0 };
+                    case 2:
+                        Console.WriteLine("Hur mycket av denna produkt vill du ha?");
+                        int? amount = InputHelper.GetIntFromUser("Antal: ", false);
+                        if (amount != null)
+                        {
+                            return new int[2] { 2, amount.Value };
+                        }
+                        return new int[2] { 2, 0 };
+                    default:
+                        Console.WriteLine("Alternativet finns inte");
+                        break;
+                }
+
+            }
+
+        }
+
     }
 }

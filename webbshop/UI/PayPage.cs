@@ -19,6 +19,8 @@ namespace webbshop.UI
         {
             var backToDeliveryOptionsW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till fraktalternativ"});
             Windows.Add(backToDeliveryOptionsW);
+
+            
             if(paymentOption == null || cartProducts == null || deliveryOption == null)
             {
                 var loadingOptionsW = new Window("", 70, 50, new List<string> { "Laddar" });
@@ -26,6 +28,7 @@ namespace webbshop.UI
                 return;
             }
 
+            // Pris info
             decimal totalCartProduct = 0;
             decimal deliveryFee = deliveryOption[Cookie.DeliveryOption.Value].Price;
             foreach (var cartProduct in cartProducts)
@@ -36,6 +39,8 @@ namespace webbshop.UI
             decimal total = totalCartProduct + deliveryFee;
             var totalW = new Window("", 90, 10, new List<string> { $"Produkter: {totalCartProduct}kr", $"Frakt: {deliveryFee}kr", $"Moms: {Math.Round(total * 0.25M, 2)}kr", $"Totalt: {total}kr" });
             Windows.Add(totalW);
+
+            // Betalningalternativ fönster
 
             for (int i = 0; i < paymentOption.Length; i++)
             {
@@ -51,7 +56,7 @@ namespace webbshop.UI
                 }
             }
 
-
+            // Produkter
             int col = 0;
             int row = 0;
             for (int i = 0; i < cartProducts.Length; i++)

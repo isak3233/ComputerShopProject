@@ -18,13 +18,11 @@ namespace webbshop.Controller
             CartPage page = new CartPage();
             page.Render();
 
-            if(Cookie.User != null)
-            {
-                cartProducts = await GetCartProducts(Cookie.User);
-                page = new CartPage(cartProducts);
-                page.Render();
 
-            }
+            cartProducts = await GetCartProducts(Cookie.User);
+            page = new CartPage(cartProducts);
+            page.Render();
+
 
             while (true)
             {
@@ -35,10 +33,11 @@ namespace webbshop.Controller
                 }
                 else
                 {
+                    // Ta bort eller ändra antalet på en produkt i vagnen
                     if(option.Value > 2 && (option.Value - 3) < cartProducts.Count)
                     {
                         var cartProduct = cartProducts[option.Value - 3];
-                        int[] result = GetCartProductOption();
+                        int[] result = InputHelper.GetCartProductOptionFromUser();
                         int cartProductOption = result[0];
                         int cartProductAmount = result[1];
                         if(cartProductOption == 1)
@@ -98,33 +97,6 @@ namespace webbshop.Controller
 
             }
         }
-        private int[] GetCartProductOption()
-        {
-            while(true)
-            {
-                
-                Console.WriteLine("Ta bort från kundvagn (1)");
-                Console.WriteLine("Ändra antal produkter (2)");
-                int? option = InputHelper.GetIntFromUser("Skriv alternativ: ", false);
-                switch(option)
-                {
-                    case 1:
-                        return new int[2] { 1, 0 };
-                    case 2:
-                        Console.WriteLine("Hur mycket av denna produkt vill du ha?");
-                        int? amount = InputHelper.GetIntFromUser("Antal: ", false);
-                        if(amount != null)
-                        {
-                            return new int[2] { 2, amount.Value };
-                        }
-                        return new int[2] { 2, 0 };
-                    default:
-                        Console.WriteLine("Alternativet finns inte");
-                        break;
-                }
-
-            }
-            
-        }
+        
     }
 }

@@ -17,6 +17,9 @@ namespace webbshop.Controller
             if(Cookie.User != null )
             {
                 Cookie.User = null;
+                Cookie.DeliveryOption = null;
+                Cookie.DeliveryProcessUser = null;
+                Cookie.SelectedPaymentOption = null;
                 return new HomePageController();
             }
             LoginPage page = new LoginPage();

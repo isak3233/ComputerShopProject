@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace webbshop.Models
 {
-    public class CartProducts
+    public class CartProduct
     {
         public int Id { get; set; }
         public virtual User User { get; set; }

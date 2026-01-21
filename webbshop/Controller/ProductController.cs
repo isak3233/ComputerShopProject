@@ -70,7 +70,7 @@ namespace webbshop.Controller
                     cartProduct.Amount++;
                 } else
                 {
-                    cartProduct = new CartProducts()
+                    cartProduct = new CartProduct()
                     {
                         UserId = Cookie.User.Id,
                         ProductId = product.Id,

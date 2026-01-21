@@ -23,7 +23,14 @@ namespace webbshop.UI
             var productNameW = new Window("Produkt titel", 20, 30, new List<string> { product.Name });
             Windows.Add(productNameW);
 
-            var productPriceW = new Window("", 20, 45, new List<string> { product.Price.ToString() + "kr", "Antal i lager: " + product.InventoryBalance.ToString() });
+            string inventoryAmount = product.InventoryBalance.ToString();
+            if (product.InventoryBalance < 0)
+            {
+                inventoryAmount = "0";
+                var warningW = new Window("VARNING", 10, 80, new List<string> { "Denna produkten finns just nu inte i lager", "detta kan leda till längre leveranstid" });
+                Windows.Add(warningW);
+            }
+            var productPriceW = new Window("", 20, 45, new List<string> { product.Price.ToString() + "kr", "Antal i lager: " + inventoryAmount });
             Windows.Add(productPriceW);
 
 

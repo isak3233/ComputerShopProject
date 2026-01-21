@@ -17,13 +17,20 @@ namespace webbshop.Models
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<PaymentOption> PaymentOptions { get; set; }
         public DbSet<PaymentHistory> PaymentHistories { get; set; }
-        public DbSet<CartProducts> CartProducts { get; set; }
-        public DbSet<DeliveryOption> DeliveryOption { get; set; }
+        public DbSet<CartProduct> CartProducts { get; set; }
+        public DbSet<DeliveryOption> DeliveryOptions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=WebShop;Trusted_Connection=True;TrustServerCertificate=True;");
             
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<CartProduct>()
+                .ToTable("CartProducts"); 
         }
     }
 }

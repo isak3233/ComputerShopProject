@@ -14,7 +14,7 @@ namespace webbshop.UI
             HomePage,
             DeliveryOptions,
         }
-        public CartPage(List<CartProducts>? cartProducts = null)
+        public CartPage(List<CartProduct>? cartProducts = null)
         {
             var backToHomePageW = new Window("(1)", 0, 0, new List<string>() { "<- Gå tillbaka till startsidan" });
             Windows.Add(backToHomePageW);
@@ -49,10 +49,10 @@ namespace webbshop.UI
             {
                 total += cartProduct.Product.Price * cartProduct.Amount;
             }
-            var cartInfoW = new Window("", 100, 30, new List<string>() { $"Totalt: {total}kr", $"Av det är {total * 0.25M}kr moms", "Fraktpriset visas när du fortsätter till betalning" });
+            var cartInfoW = new Window("", 100, 30, new List<string>() { $"Totalt: {total}kr", $"Av det är {Math.Round(total * 0.25M, 2)}kr moms", "Fraktpriset visas när du fortsätter till betalning" });
             Windows.Add(cartInfoW);
 
-            var deliveryOptionsW = new Window("(2)", 90, 90, new List<string>() { "Gå vidare till frakt alternativen ->"});
+            var deliveryOptionsW = new Window("(2)", 90, 90, new List<string>() { "Gå vidare till fraktalternativen ->"});
             Windows.Add(deliveryOptionsW);
         }
     }

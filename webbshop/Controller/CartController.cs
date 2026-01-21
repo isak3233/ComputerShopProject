@@ -14,7 +14,7 @@ namespace webbshop.Controller
     {
         public async Task<IController> ActivateController()
         {
-            List<CartProducts>? cartProducts = null;
+            List<CartProduct>? cartProducts = null;
             CartPage page = new CartPage();
             page.Render();
 
@@ -58,6 +58,8 @@ namespace webbshop.Controller
                     {
                         case Buttons.HomePage:
                             return new HomePageController();
+                        case Buttons.DeliveryOptions:
+                            return new DeliveryController();
                         default:
                             page.Render();
                             break;
@@ -66,7 +68,7 @@ namespace webbshop.Controller
 
             }
         }
-        private async Task<List<CartProducts>> GetCartProducts(User user)
+        static public async Task<List<CartProduct>> GetCartProducts(User user)
         {
             using (var db = new ShopDbContext())
             {
@@ -77,7 +79,7 @@ namespace webbshop.Controller
                 return result;
             }
         }
-        private async Task RemoveProductFromCart(CartProducts cartProduct)
+        static public async Task RemoveProductFromCart(CartProduct cartProduct)
         {
             using(var db = new ShopDbContext())
             {
@@ -86,7 +88,7 @@ namespace webbshop.Controller
             }
 
         }
-        private async Task ChangeCartProductAmount(CartProducts cartProduct, int Amount)
+        private async Task ChangeCartProductAmount(CartProduct cartProduct, int Amount)
         {
             using(var db = new ShopDbContext())
             {

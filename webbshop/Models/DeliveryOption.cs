@@ -9,7 +9,7 @@ namespace webbshop.Models
     public class DeliveryOption
     {
         public int Id { get; set; }
-        public int Name { get; set; }
+        public string Name { get; set; }
         public decimal Price { get; set; }
         public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
     }

@@ -162,11 +162,12 @@ namespace webbshop.Controller
                 await db.SaveChangesAsync();
             }
         }
-        private async Task<City> GetCity(Country country)
+        static public async Task<City> GetCity(Country country)
         {
+            City[] cities = await GetCities(country);
             while (true)
             {
-                City[] cities = await GetCities(country);
+                
                 foreach (var city in cities)
                 {
                     Console.WriteLine(city.Id + ": " + city.Name);
@@ -183,11 +184,12 @@ namespace webbshop.Controller
                 }
             }
         }
-        private async Task<Country> GetCountry()
+        static public async Task<Country> GetCountry()
         {
+            Country[] countries = await GetCountries();
             while (true)
             {
-                Country[] countries = await GetCountries();
+                
                 foreach (var country in countries)
                 {
                     Console.WriteLine(country.Id + ": " + country.Name);
@@ -205,7 +207,7 @@ namespace webbshop.Controller
                 }
             }
         }
-        private async Task<Country[]> GetCountries()
+        public static async Task<Country[]> GetCountries()
         {
             using(var db = new ShopDbContext())
             {
@@ -214,7 +216,7 @@ namespace webbshop.Controller
 
             }
         }
-        private async Task<City[]> GetCities(Country country)
+        static public async Task<City[]> GetCities(Country country)
         {
             using(var db = new ShopDbContext())
             {

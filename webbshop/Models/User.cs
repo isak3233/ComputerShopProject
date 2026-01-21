@@ -25,6 +25,6 @@ namespace webbshop.Models
 
         public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();
 
-        public virtual ICollection<CartProducts> CartProducts {  get; set; } = new List<CartProducts>();
+        public virtual ICollection<CartProduct> CartProducts {  get; set; } = new List<CartProduct>();
     }
 }

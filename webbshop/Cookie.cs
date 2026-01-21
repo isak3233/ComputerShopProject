@@ -10,5 +10,9 @@ namespace webbshop
     public class Cookie
     {
         public static User? User;
+        public static User? DeliveryProcessUser;
+        public static int? DeliveryOption;
+        public static int? SelectedPaymentOption;
     }
+    
 }

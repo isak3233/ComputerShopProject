@@ -38,9 +38,9 @@ namespace webbshop.Controller
                 }
                 else
                 {
-                    if(option > 1 && (option - 2) < products.Length)
+                    if(option > 2 && (option - 3) < products.Length)
                     {
-                        option -= 2;
+                        option -= 3;
                         var selectedProduct = products[option.Value];
                         return new ProductController(selectedProduct);
 
@@ -51,6 +51,14 @@ namespace webbshop.Controller
                     {
                         case Buttons.Category:
                             return new CategoryController();
+                        case Buttons.Search:
+                            Console.Write("Sök: ");
+                            string? searchInput = Console.ReadLine();
+                            if (searchInput == null) break;
+                            Product[] searchedProducts = await GetProductFromSearch(searchInput);
+                            page = new ShopPage(searchedProducts, searchInput);
+                            page.Render();
+                            break;
                         default:
                             page.Render();
                             break;
@@ -59,11 +67,20 @@ namespace webbshop.Controller
 
             }
         }
-        public async Task<Product[]> GetProductsFromCategory(Category category)
+        private async Task<Product[]> GetProductsFromCategory(Category category)
         {
             using (var db = new ShopDbContext())
             {
                 return await db.Products.Where(p => p.CategoryId == category.Id).ToArrayAsync();
+            }
+        }
+        private async Task<Product[]> GetProductFromSearch(string searchInput)
+        {
+            using(var db = new ShopDbContext())
+            {
+                return await db.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.Name.Contains(searchInput) || p.Category.Name.Contains(searchInput)).ToArrayAsync();
             }
         }
 

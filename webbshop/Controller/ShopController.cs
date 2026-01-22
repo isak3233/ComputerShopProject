@@ -55,8 +55,8 @@ namespace webbshop.Controller
                             Console.Write("Sök: ");
                             string? searchInput = Console.ReadLine();
                             if (searchInput == null) break;
-                            Product[] searchedProducts = await GetProductFromSearch(searchInput);
-                            page = new ShopPage(searchedProducts, searchInput);
+                            products = await GetProductFromSearch(searchInput);
+                            page = new ShopPage(products, searchInput);
                             page.Render();
                             break;
                         default:

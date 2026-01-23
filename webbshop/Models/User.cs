@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace webbshop.Models
 {
-    [Index(nameof(Email), IsUnique = true)]
+    [Index(nameof(Email), IsUnique = true)] // ser till att email måste vara unik
     public class User
     {
         public int Id { get; set; }

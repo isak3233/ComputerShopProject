@@ -30,7 +30,75 @@ namespace webbshop.Models
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<CartProduct>()
-                .ToTable("CartProducts"); 
+                .ToTable("CartProducts");
+            // Ser till att sätta så vi inte kan ta bort saker som har kopplingar
+            modelBuilder.Entity<CartProduct>()
+                .HasOne(cp => cp.User)
+                .WithMany(u => u.CartProducts)
+                .HasForeignKey(cp => cp.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CartProduct>()
+                .HasOne(cp => cp.Product)
+                .WithMany(p => p.CartProducts)
+                .HasForeignKey(cp => cp.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+       
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Supplier)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SupplierId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            modelBuilder.Entity<PaymentHistory>()
+                .HasOne(ph => ph.Product)
+                .WithMany(p => p.PaymentHistories)
+                .HasForeignKey(ph => ph.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentHistory>()
+                .HasOne(ph => ph.User)
+                .WithMany(u => u.PaymentHistories)
+                .HasForeignKey(ph => ph.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentHistory>()
+                .HasOne(ph => ph.PaymentOption)
+                .WithMany(po => po.PaymentHistories)
+                .HasForeignKey(ph => ph.PaymentOptionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentHistory>()
+                .HasOne(ph => ph.DeliveryOption)
+                .WithMany(d => d.PaymentHistories)
+                .HasForeignKey(ph => ph.DeliveryOptionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentHistory>()
+                .HasOne(ph => ph.DeliveryCity)
+                .WithMany(c => c.PaymentHistories)
+                .HasForeignKey(ph => ph.DeliveryCityId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            
+            modelBuilder.Entity<City>()
+                .HasOne(c => c.Country)
+                .WithMany(co => co.Cities)
+                .HasForeignKey(c => c.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.City)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.CityId)
+                .OnDelete(DeleteBehavior.SetNull); 
         }
     }
 }

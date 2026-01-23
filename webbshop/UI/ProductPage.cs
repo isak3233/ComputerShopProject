@@ -15,8 +15,13 @@ namespace webbshop.UI
             AddToCart
 
         }
-        public ProductPage(Product product, bool productAddedToCart = false)
+        public ProductPage(Product product)
         {
+            Update(product);
+        }
+        public void Update(Product product, bool productAddedToCart = false)
+        {
+            Windows = new List<Window>();
             var shopW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till shop sidan " });
             Windows.Add(shopW);
 
@@ -41,11 +46,12 @@ namespace webbshop.UI
             var addToCartW = new Window("(2)", 90, 90, new List<string> { Cookie.User == null ? "Du måste vara inloggad för att kunna lägga till produkten i varukorgen" : "Lägg till i varukorgen ->" });
             Windows.Add(addToCartW);
 
-            if(productAddedToCart)
+            if (productAddedToCart)
             {
                 var productAddedW = new Window("", 50, 90, new List<string> { "Produkten har lagts till i din varukorg" });
                 Windows.Add(productAddedW);
             }
+            this.Render();
         }
         // Metod som delar upp en lång sträng i mindre strängar och sedan lägger dom i en lista
         private List<string> BreakSentence(string text, int maxLength)

@@ -22,7 +22,6 @@ namespace webbshop.Controller
         {
 
             ProductPage page = new ProductPage(SelectedProduct);
-            page.Render();
 
 
 
@@ -47,8 +46,7 @@ namespace webbshop.Controller
                             if(Cookie.User != null)
                             {
                                 await AddProductToCart(SelectedProduct);
-                                page = new ProductPage(SelectedProduct, true);
-                                page.Render();
+                                page.Update(SelectedProduct, true);
                             }
                             break;
                         default:

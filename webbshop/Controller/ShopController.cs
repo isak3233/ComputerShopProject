@@ -21,11 +21,10 @@ namespace webbshop.Controller
         public async Task<IController> ActivateController()
         {
             var loadingProducts = GetProductsFromCategory(Category);
-            ShopPage page = new ShopPage(null);
-            page.Render();
+            ShopPage page = new ShopPage();
 
             var products = await loadingProducts;
-            page = new ShopPage(products);
+            page.Update(products);
             page.Render();
 
 
@@ -56,8 +55,7 @@ namespace webbshop.Controller
                             string? searchInput = Console.ReadLine();
                             if (searchInput == null) break;
                             products = await GetProductFromSearch(searchInput);
-                            page = new ShopPage(products, searchInput);
-                            page.Render();
+                            page.Update(products, searchInput);
                             break;
                         default:
                             page.Render();

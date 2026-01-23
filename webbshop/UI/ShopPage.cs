@@ -14,8 +14,13 @@ namespace webbshop.UI
             Category,
             Search
         }
-        public ShopPage(Product[]? products, string? searchInput = null)
+        public ShopPage()
         {
+            Update();
+        }
+        public void Update(Product[]? products = null, string? searchInput = null)
+        {
+            Windows = new List<Window>();
             var categoryPageW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till kategori sidan" });
             Windows.Add(categoryPageW);
 
@@ -51,9 +56,9 @@ namespace webbshop.UI
                     col++;
                 }
             }
-            var searchField = new Window(searchInput == null ? "(2)" : "Sökt (2)", 50, 90, new List<string> { searchInput  == null ? "Sök bland alla produkter" : searchInput });
+            var searchField = new Window(searchInput == null ? "(2)" : "Sökt (2)", 50, 90, new List<string> { searchInput == null ? "Sök bland alla produkter" : searchInput });
             Windows.Add(searchField);
-            
+            this.Render();
         }
     }
 }

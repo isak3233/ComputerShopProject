@@ -20,7 +20,6 @@ namespace webbshop.Controller
         {
             User newUser = new User();
             RegisterPage page = new RegisterPage(newUser);
-            page.Render();
             while (true)
             {
                 int? option = InputHelper.GetIntFromUser("", true);
@@ -37,28 +36,23 @@ namespace webbshop.Controller
                             return new HomePageController();
                         case Buttons.Firstname:
                             newUser.FirstName = InputHelper.GetStringFromUser("Förnamn: ");
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.Lastname:
                             newUser.LastName = InputHelper.GetStringFromUser("Efternamn: ");
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.Email:
                             newUser.Email = InputHelper.GetStringFromUser("Email: ").ToLower();
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.Password:
                             newUser.Password = InputHelper.GetStringFromUser("Password: ");
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.StreetName:
                             newUser.StreetName = InputHelper.GetStringFromUser("Gatuadress: ");
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.City:
                             
@@ -68,13 +62,11 @@ namespace webbshop.Controller
                             newUser.City = selectedCity;
                             newUser.CityId = selectedCity.Id;
                             newUser.City.Country = selectedCountry;
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.PhoneNumber:
                             newUser.PhoneNumber = InputHelper.GetStringFromUser("Telefonnummer: ");
-                            page = new RegisterPage(newUser);
-                            page.Render();
+                            page.Update(newUser);
                             break;
                         case Buttons.BirthDate:
                             while (true)
@@ -97,9 +89,8 @@ namespace webbshop.Controller
                                 }
                                 
                             }
-                            
-                            page = new RegisterPage(newUser);
-                            page.Render();
+
+                            page.Update(newUser);
                             break;
                         case Buttons.Register:
                             

@@ -25,6 +25,11 @@ namespace webbshop.UI
         }
         public RegisterPage(User user)
         {
+            Update(user);
+        }
+        public void Update(User user)
+        {
+            Windows = new List<Window>();
             var backToHomePage = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till startsidan" });
             Windows.Add(backToHomePage);
 
@@ -54,6 +59,7 @@ namespace webbshop.UI
 
             var registerW = new Window("(10)", 60, 45, new List<string> { "Registrera" });
             Windows.Add(registerW);
+            this.Render();
         }
     }
 }

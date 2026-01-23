@@ -20,16 +20,22 @@ namespace webbshop.UI
             Selected3,
             AdminPanel
         }
-        public HomePage(Product[] selectedProducts)
+        public HomePage()
         {
+            Update();
+        }
+        public void Update(Product[]? selectedProducts = null)
+        {
+            Windows = new List<Window>();
             var welcomeWindow = new Window("", 10, 0, new List<string> { Cookie.User == null ? "Välkommen till datorbutiken!" : "Välkommen till datorbutiken " + Cookie.User.FirstName });
             Windows.Add(welcomeWindow);
 
-            if(Cookie.User == null)
+            if (Cookie.User == null)
             {
                 var loginWindow = new Window("(1)", 100, 0, new List<string> { "Logga in" });
                 Windows.Add(loginWindow);
-            } else
+            }
+            else
             {
                 var logoutWindow = new Window("(1)", 100, 0, new List<string> { "Logga ut" });
                 Windows.Add(logoutWindow);
@@ -44,18 +50,19 @@ namespace webbshop.UI
                 }
             }
 
-            
+
 
             var categoryWindow = new Window("(3)", 60, 40, new List<string> { "Gå till Kategorier" });
             Windows.Add(categoryWindow);
-            if (selectedProducts[0] == null)
+            if (selectedProducts == null)
             {
-                for(int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    var selectedProductInfo = new Window($"Erbjudande {i + 1} ({i + 4})", 40 + (i) * 20, 80, new List<string> { "Laddar"});
+                    var selectedProductInfo = new Window($"Erbjudande {i + 1} ({i + 4})", 40 + (i) * 20, 80, new List<string> { "Laddar" });
                     Windows.Add(selectedProductInfo);
                 }
-            } else
+            }
+            else
             {
                 int index = 1;
                 foreach (var selectedProduct in selectedProducts)
@@ -65,10 +72,7 @@ namespace webbshop.UI
                     index++;
                 }
             }
-
-            
-                
-
+            this.Render();
         }
         
         

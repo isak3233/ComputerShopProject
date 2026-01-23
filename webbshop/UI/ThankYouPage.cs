@@ -10,8 +10,14 @@ namespace webbshop.UI
     {
         public ThankYouPage()
         {
-            var ThankYouW = new Window("", 50, 50, new List<string> {"Tack för din beställning :)"});
+            Update();
+        }
+        public void Update()
+        {
+            Windows = new List<Window>();
+            var ThankYouW = new Window("", 50, 50, new List<string> { "Tack för din beställning :)" });
             Windows.Add(ThankYouW);
+            this.Render();
         }
     }
 }

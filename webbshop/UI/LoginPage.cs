@@ -17,9 +17,13 @@ namespace webbshop.UI
             Register
 
         }
-        public LoginPage(string? email = null, string? password = null)
+        public LoginPage()
         {
-
+            Update();
+        }
+        public void Update(string? email = null, string? password = null)
+        {
+            Windows = new List<Window>();
             var backToHomePage = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till startsidan" });
             Windows.Add(backToHomePage);
 
@@ -28,9 +32,9 @@ namespace webbshop.UI
             var emailW = new Window("(2)", 50, 30, new List<string> { email == null ? "Email" : email });
             Windows.Add(emailW);
 
-            var passwordW = new Window("(3)", 50, 40, new List<string> { password == null ? "Lösenord" : password});
+            var passwordW = new Window("(3)", 50, 40, new List<string> { password == null ? "Lösenord" : password });
             Windows.Add(passwordW);
-            
+
 
 
             var login = new Window("(4)", 50, 50, new List<string> { "Logga in" });
@@ -38,6 +42,7 @@ namespace webbshop.UI
 
             var registerW = new Window("(5)", 50, 60, new List<string> { "Registera ny användare" });
             Windows.Add(registerW);
+            this.Render();
         }
     }
 }

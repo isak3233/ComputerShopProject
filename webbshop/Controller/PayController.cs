@@ -20,7 +20,6 @@ namespace webbshop.Controller
                 Cookie.SelectedPaymentOption = 0;
             }
             PayPage page = new PayPage();
-            page.Render();
 
             var paymentOptionsT = GetPaymentOptions();
             var cartProductsT = CartController.GetCartProducts(Cookie.User);
@@ -30,8 +29,7 @@ namespace webbshop.Controller
             var cartProducts = (await cartProductsT).ToArray();
             var deliveryOptions = await deliveryOptionsT;
 
-            page = new PayPage(paymentOptions, cartProducts, deliveryOptions);
-            page.Render();
+            page.Update(paymentOptions, cartProducts, deliveryOptions);
 
             while (true)
             {
@@ -45,7 +43,7 @@ namespace webbshop.Controller
                     if(option.Value - 3 >= 0 && option - 3 < paymentOptions.Length)
                     {
                         Cookie.SelectedPaymentOption = option.Value - 3;
-                        page = new PayPage(paymentOptions, cartProducts, deliveryOptions);
+                        page.Update(paymentOptions, cartProducts, deliveryOptions);
                     }
                     option -= 1;
                     switch ((Buttons)option)
@@ -82,7 +80,6 @@ namespace webbshop.Controller
                             await Task.WhenAll(tasks); 
 
                             ThankYouPage thankYouPage = new ThankYouPage();
-                            thankYouPage.Render();
                             Console.ReadLine();
                             return new HomePageController();
 

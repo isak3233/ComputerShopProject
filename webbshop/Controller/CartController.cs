@@ -16,12 +16,10 @@ namespace webbshop.Controller
         {
             List<CartProduct>? cartProducts = null;
             CartPage page = new CartPage();
-            page.Render();
 
 
             cartProducts = await GetCartProducts(Cookie.User);
-            page = new CartPage(cartProducts);
-            page.Render();
+            page.Update(cartProducts);
 
 
             while (true)
@@ -49,8 +47,7 @@ namespace webbshop.Controller
                             await ChangeCartProductAmount(cartProduct, cartProductAmount);
                         }
                         cartProducts = await GetCartProducts(Cookie.User);
-                        page = new CartPage(cartProducts);
-                        page.Render();
+                        page.Update(cartProducts);
                     }
                     option -= 1;
                     switch ((Buttons)option)

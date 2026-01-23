@@ -16,28 +16,34 @@ namespace webbshop.UI
             Category2,
             Category3,
         }
-        public CategoryPage(Category[] categories)
+        public CategoryPage()
         {
-   
-            var backToHomePage = new Window("(1)", 0, 0, new List<string>() { "<- Gå tillbaka till startsidan"});
-            if (categories[0] == null)
+            Update();
+        }
+        public void Update(Category[]? categories = null)
+        {
+            Windows = new List<Window>();
+            var backToHomePage = new Window("(1)", 0, 0, new List<string>() { "<- Gå tillbaka till startsidan" });
+            if (categories == null)
             {
-                for(int i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     var categoriW = new Window($"Kategori {i + 1} ({i + 2})", 40 + (i) * 20, 50, new List<string> { "Laddar" });
                     Windows.Add(categoriW);
                 }
-            } else
+            }
+            else
             {
                 int index = 0;
-                foreach(var categori in categories)
+                foreach (var categori in categories)
                 {
                     var categoriW = new Window($"Kategori {index + 1} ({index + 2})", 40 + (index) * 20, 50, new List<string> { categori.Name });
                     Windows.Add(categoriW);
                     index++;
                 }
             }
-                Windows.Add(backToHomePage);
+            Windows.Add(backToHomePage);
+            this.Render();
         }
     }
 }

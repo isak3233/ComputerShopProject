@@ -23,7 +23,6 @@ namespace webbshop.Controller
             }
 
             DeliveryPage page = new DeliveryPage();
-            page.Render();
 
             // Lägger till country info i user objektet så våran frakt sida kan visa den informationen
             var user = await GetUserCountry(Cookie.User); 
@@ -33,8 +32,7 @@ namespace webbshop.Controller
             }
 
             var deliveryOptions = await GetDeliveryOptions();
-            page = new DeliveryPage(deliveryOptions);
-            page.Render();
+            page.Update(deliveryOptions);
 
 
 
@@ -55,8 +53,8 @@ namespace webbshop.Controller
                     if(option - 5 >= 0 && option - 5 < deliveryOptions.Length)
                     {
                         Cookie.DeliveryOption = option.Value - 5;
-                        page = new DeliveryPage(deliveryOptions);
-                        page.Render();
+                        page.Update(deliveryOptions);
+
                     }
                     option -= 1;
                     switch ((Buttons)option)
@@ -69,13 +67,13 @@ namespace webbshop.Controller
                             City selectedCity = await RegisterUserController.GetCity(selectedCountry);
                             Cookie.DeliveryProcessUser.City = selectedCity;
                             Cookie.DeliveryProcessUser.City.Country = selectedCountry;
-                            page = new DeliveryPage(deliveryOptions);
-                            page.Render();
+                            page.Update(deliveryOptions);
+
                             break;
                         case Buttons.Streetname:
                             Cookie.DeliveryProcessUser.StreetName = InputHelper.GetStringFromUser("Gatuadress: ");
-                            page = new DeliveryPage(deliveryOptions);
-                            page.Render();
+                            page.Update(deliveryOptions);
+
                             break;
                         case Buttons.Pay:
                             return new PayController();

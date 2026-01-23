@@ -15,16 +15,23 @@ namespace webbshop.UI
             Delivery,
             Pay
         }
-        public PayPage(PaymentOption[]? paymentOption = null, CartProduct[]? cartProducts = null, DeliveryOption[]? deliveryOption = null)
+        public PayPage()
         {
-            var backToDeliveryOptionsW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till fraktalternativ"});
+            Update();
+
+        }
+        public void Update(PaymentOption[]? paymentOption = null, CartProduct[]? cartProducts = null, DeliveryOption[]? deliveryOption = null)
+        {
+            Windows = new List<Window>();
+            var backToDeliveryOptionsW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till fraktalternativ" });
             Windows.Add(backToDeliveryOptionsW);
 
-            
-            if(paymentOption == null || cartProducts == null || deliveryOption == null)
+
+            if (paymentOption == null || cartProducts == null || deliveryOption == null)
             {
                 var loadingOptionsW = new Window("", 70, 50, new List<string> { "Laddar" });
                 Windows.Add(loadingOptionsW);
+                this.Render();
                 return;
             }
 
@@ -45,11 +52,12 @@ namespace webbshop.UI
             for (int i = 0; i < paymentOption.Length; i++)
             {
                 var option = paymentOption[i];
-                if(Cookie.SelectedPaymentOption == i)
+                if (Cookie.SelectedPaymentOption == i)
                 {
                     var paymentOptionW = new Window($"Vald", 70, 50 + i * 15, new List<string> { option.Name });
                     Windows.Add(paymentOptionW);
-                } else
+                }
+                else
                 {
                     var paymentOptionW = new Window($"({i + 3})", 70, 50 + i * 15, new List<string> { option.Name });
                     Windows.Add(paymentOptionW);
@@ -74,7 +82,7 @@ namespace webbshop.UI
 
             var payW = new Window("(2)", 90, 90, new List<string> { "Betala ->" });
             Windows.Add(payW);
-
+            this.Render();
         }
     }
 }

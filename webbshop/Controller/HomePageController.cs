@@ -17,12 +17,10 @@ namespace webbshop.Controller
         {
 
             Product[] selectedProducts = new Product[3];
-            HomePage page = new HomePage(selectedProducts);
-            page.Render();
+            HomePage page = new HomePage();
 
             selectedProducts = await GetSelectedProducts();
-            page = new HomePage(selectedProducts);
-            page.Render();
+            page.Update(selectedProducts);
 
 
 

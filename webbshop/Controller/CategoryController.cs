@@ -17,12 +17,11 @@ namespace webbshop.Controller
         public async Task<IController> ActivateController()
         {
             Category[] categories = new Category[3];
-            CategoryPage page = new CategoryPage(categories);
-            page.Render();
+            CategoryPage page = new CategoryPage();
+
 
             categories = await GetCategories();
-            page = new CategoryPage(categories);
-            page.Render();
+            page.Update(categories);
             
             while (true)
             {

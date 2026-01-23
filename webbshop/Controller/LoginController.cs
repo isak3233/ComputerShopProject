@@ -27,7 +27,6 @@ namespace webbshop.Controller
             string? email = null;
             string? password = null;
 
-            page.Render();
             while (true)
             {
                 int? option = InputHelper.GetIntFromUser("", true);
@@ -45,14 +44,12 @@ namespace webbshop.Controller
                         case Buttons.Email:
                             Console.Write("Skriv din email: ");
                             email = Console.ReadLine().ToLower();
-                            page = new LoginPage(email, password);
-                            page.Render();
+                            page.Update (email, password);
                             break;
                         case Buttons.Password:
                             Console.Write("Skriv ditt lösenord: ");
                             password = Console.ReadLine();
-                            page = new LoginPage(email, password);
-                            page.Render();
+                            page.Update(email, password);
                             break;
                         case Buttons.Login:
                             User? user = await GetUser(email, password);

@@ -63,11 +63,11 @@ namespace webbshop.Controller
                                     Amount = cartProduct.Amount,
                                     DeliveryStreet = Cookie.DeliveryProcessUser.StreetName,
                                     DeliveryCityId = Cookie.DeliveryProcessUser.CityId.Value,
-                                    DeliveryOptionId = Cookie.DeliveryOption.Value + 1
+                                    DeliveryOptionId = Cookie.DeliveryOption.Value + 1,
+                                    PayedDate = DateTime.Now
                                 };
                                 tasks.Add(RegisterPayment(paymentHistory));
                                 tasks.Add(CartController.RemoveProductFromCart(cartProduct));
-                                tasks.Add(RemoveFromStock(paymentHistory.ProductId, paymentHistory.Amount));
                             }
                             
                             // Resetar cookie så nästa gång vid beställning använder den uppgifterna som är sparade under user objektet
@@ -108,19 +108,6 @@ namespace webbshop.Controller
                 return await db.PaymentOptions.ToArrayAsync();
             }
         }
-        private async Task RemoveFromStock(int productId, int amount)
-        {
-            using(var db = new ShopDbContext())
-            {
-                var product = await db.Products.Where(p => p.Id == productId).SingleOrDefaultAsync();
-                if(product != null)
-                {
-                    product.InventoryBalance -= amount;
-                    
-                }
-                await db.SaveChangesAsync();
-
-            }
-        }
+        
     }
 }

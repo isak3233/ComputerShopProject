@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using webbshop.Models;
 
 namespace webbshop
 {
     public class InputHelper
     {
-        public static int? GetIntFromUser(string inputString = "Skriv ett nummer: ", bool returnIfEmpty = false)
+        public static int GetIntFromUser(string inputString = "Skriv ett nummer: ", bool returnIfEmpty = false)
         {
             while(true)
             {
@@ -19,13 +21,33 @@ namespace webbshop
                     return number;
                 } else if(returnIfEmpty && input == "")
                 {
-                    return null;
+                    return 0;
                 } else
                 {
                     Console.WriteLine(inputString);
                 }
             }
             
+        }
+        public static bool GetBoolFromUser(string inputString = "Skriv ja (1) eller nej (2):", string errorString = "input är inte 1 eller 2")
+        {
+            while (true)
+            {
+                Console.Write(inputString);
+                string? input = Console.ReadLine();
+                if(input == "1")
+                {
+                    return true;
+                } 
+                else if(input == "2")
+                {
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine(errorString);
+                }
+            }
         }
         public static string GetStringFromUser(string inputString = "Skriv något:", string errorString = "input är tomt")
         {
@@ -41,6 +63,26 @@ namespace webbshop
                     Console.WriteLine(errorString);
                 }
             }
+        }
+        static public decimal GetDecimalFromUser(string inputString = "Skriv ett decimal nummer:", string errorString = "input är tomt")
+        {
+            while(true)
+            {
+                Console.Write(inputString);
+                string input = Console.ReadLine();
+                input = input.Replace('.', ',');
+
+
+                if (decimal.TryParse(input, out decimal value))
+                {
+                    return value;
+                }
+                else
+                {
+                    Console.WriteLine("Ogiltigt");
+                }
+            }
+            
         }
         static public int[] GetCartProductOptionFromUser()
         {
@@ -69,6 +111,29 @@ namespace webbshop
 
             }
 
+        }
+        static public DateTime GetDateTimeFromUser()
+        {
+            while (true)
+            {
+
+                string year = GetStringFromUser("År: ");
+                string month = GetStringFromUser("Månad: ");
+                string day = GetStringFromUser("Dag: ");
+                try
+                {
+                    DateTime date = DateTime.ParseExact(
+                    year + "-" + month + "-" + day,
+                    "yyyy-M-d",
+                    CultureInfo.InvariantCulture
+                    );
+                    return date;
+                }
+                catch
+                {
+                    Console.WriteLine("Lyckades inte parse datumet");
+                }
+            }
         }
 
     }

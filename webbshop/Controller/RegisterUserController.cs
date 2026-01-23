@@ -69,26 +69,9 @@ namespace webbshop.Controller
                             page.Update(newUser);
                             break;
                         case Buttons.BirthDate:
-                            while (true)
-                            {
-                                string year = InputHelper.GetStringFromUser("År: ");
-                                string month = InputHelper.GetStringFromUser("Månad: ");
-                                string day = InputHelper.GetStringFromUser("Dag: ");
-                                try
-                                {
-                                    DateTime date = DateTime.ParseExact(
-                                    year + "-" + month + "-" + day,
-                                    "yyyy-M-d",
-                                    CultureInfo.InvariantCulture
-                                    );
-                                    newUser.BirthDate = date;
-                                    break;
-                                } catch
-                                {
-                                    Console.WriteLine("Lyckades inte parse födelsåret");
-                                }
-                                
-                            }
+                            DateTime date = InputHelper.GetDateTimeFromUser();
+                            newUser.BirthDate = date;
+                            
 
                             page.Update(newUser);
                             break;

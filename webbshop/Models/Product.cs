@@ -17,6 +17,7 @@ namespace webbshop.Models
         public int SupplierId { get; set; }
         public decimal Price { get; set; }
         public int InventoryBalance { get; set; }
+        
         public bool IsSelected { get; set; }
 
         public virtual ICollection<PaymentHistory> PaymentHistories { get; set; } = new List<PaymentHistory>();

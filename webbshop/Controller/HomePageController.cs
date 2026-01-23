@@ -65,6 +65,10 @@ namespace webbshop.Controller
                             }
                             break;
                         case Buttons.AdminPanel:
+                            if(Cookie.User != null && Cookie.User.IsAdmin == true)
+                            {
+                                return new AdminController();   
+                            }
                             break;
 
                         default:

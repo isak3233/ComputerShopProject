@@ -14,6 +14,7 @@ namespace webbshop.Controller
     {
         public async Task<IController> ActivateController()
         {
+
             if(Cookie.User != null )
             {
                 Cookie.User = null;
@@ -26,6 +27,10 @@ namespace webbshop.Controller
 
             string? email = null;
             string? password = null;
+            // Automatisk inloggning
+            //Cookie.User = await GetUser("isak.heimdahl@gmail.com", "Kebab");
+            //return new HomePageController();
+
 
             while (true)
             {

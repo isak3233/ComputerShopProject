@@ -22,6 +22,8 @@ namespace webbshop.Models
 
         public virtual DeliveryOption DeliveryOption {  get; set; }
         public int DeliveryOptionId { get; set; }
+        public DateTime PayedDate { get; set; }
+        public DateTime SendDate { get; set; }
 
 
     }

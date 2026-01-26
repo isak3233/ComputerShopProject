@@ -22,7 +22,7 @@ namespace webbshop.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=WebShop;Trusted_Connection=True;TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer("Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

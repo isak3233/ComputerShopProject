@@ -16,7 +16,7 @@ namespace webbshop.Controller
 {
     internal class StatsController : IController
     {
-        private string connectionString = "Server=.\\SQLEXPRESS;Database=WebShop;Trusted_Connection=True;TrustServerCertificate=True;"; // För dapper
+        private string connectionString = "Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"; // För dapper
         public async Task<IController> ActivateController()
         {
             StatsPage page = new StatsPage();

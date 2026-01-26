@@ -29,7 +29,7 @@ namespace webbshop.UI
             Windows.Add(productNameW);
 
             string inventoryAmount = product.InventoryBalance.ToString();
-            if (product.InventoryBalance < 0)
+            if (product.InventoryBalance <= 0)
             {
                 inventoryAmount = "0";
                 var warningW = new Window("VARNING", 10, 80, new List<string> { "Denna produkten finns just nu inte i lager", "detta kan leda till längre leveranstid" });
@@ -40,7 +40,7 @@ namespace webbshop.UI
 
 
             List<string> productDetailsBroken = BreakSentence(product.Details, 70);
-            var productDetailsW = new Window("Beskrivning", 90, 30, productDetailsBroken);
+            var productDetailsW = new Window("Beskrivning", 90, 50, productDetailsBroken);
             Windows.Add(productDetailsW);
 
             var addToCartW = new Window("(2)", 90, 90, new List<string> { Cookie.User == null ? "Du måste vara inloggad för att kunna lägga till produkten i varukorgen" : "Lägg till i varukorgen ->" });

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -37,6 +38,7 @@ namespace webbshop.Controller
                             try
                             {
                                 await AddProduct(newProduct);
+                                AddMongoProduct(newProduct.Id, Cookie.User.Id);
                             }
                             catch (Exception ex)
                             {
@@ -54,8 +56,19 @@ namespace webbshop.Controller
                                 Console.WriteLine("Produkten finns inte");
                                 break;
                             }
-                            await RemoveProduct(removeProductId);
-                            Console.WriteLine("Produkten borttagen :)");
+                            try
+                            {
+                                await RemoveProduct(removeProductId);
+                                RemoveMongoProduct(removeProductId);
+                                Console.WriteLine("Produkten borttagen :)");
+                            } catch(Exception ex)
+                            {
+                                Console.WriteLine("Något gick fel");
+                                Console.WriteLine("Produkten kan inte tas bort om det finnas i Betalnings historiken eller finnas i användarnas kundvagnart");
+                            }
+                            
+                            
+
                             break;
                         case Buttons.ChangeProduct:
                             await WriteOutAllProducts();
@@ -140,6 +153,12 @@ namespace webbshop.Controller
                             try
                             {
                                 await UpdateUser(changedUser);
+                                if (changedUser.Email != changeUser.Email)
+                                {
+                                    
+                                    UpdateMongoUserEmail(changeUser.Email, changedUser.Email);
+                                }
+
                                 Console.WriteLine("Användarens uppgifter är ändrade");
                             } catch(Exception ex)
                             {
@@ -178,7 +197,7 @@ namespace webbshop.Controller
 
                             break;
                         case Buttons.SendOrder:
-                            await WriteOutAllUsers();
+                            await WriteOutAllUsersWithOrders();
                             int sendUserId = InputHelper.GetIntFromUser("Användarens id: ", true);
                             User? sendUser = await GetUserFromId(sendUserId);
                             if(sendUser == null)
@@ -226,6 +245,29 @@ namespace webbshop.Controller
             }
         }
         
+        private async Task RemoveMongoProduct(int productId)
+        {
+            var filter = Builders<Models.AddedProduct>.Filter.Eq(p => p.ProductId, productId);
+            await MongoConnection.GetAddedProductCollection().DeleteOneAsync(filter);
+        }
+        private async Task AddMongoProduct(int productId, int adminId)
+        {
+            AddedProduct addedProductEvent = new AddedProduct()
+            {
+                ProductId = productId,
+                AdminId = adminId,
+                AddedDate = DateTime.Now
+            };
+
+            await MongoConnection.GetAddedProductCollection().InsertOneAsync(addedProductEvent);
+        }
+        private async Task UpdateMongoUserEmail(string oldEmail, string newEmail)
+        {
+            LoginAttempt? loginAttempt = MongoConnection.GetLoginAttemptCollection().AsQueryable().SingleOrDefault(la => la.Email == oldEmail);
+            if (loginAttempt == null) return;
+            loginAttempt.Email = newEmail;
+            await MongoConnection.GetLoginAttemptCollection().ReplaceOneAsync(la => la.Id == loginAttempt.Id, loginAttempt);
+        }
         private async Task UpdateProduct(Product product)
         {
             using (var db = new ShopDbContext())
@@ -395,6 +437,25 @@ namespace webbshop.Controller
                 return await db.Categories.FindAsync(id);
             }
         }
+        private async Task WriteOutAllUsersWithOrders()
+        {
+            using (var db = new ShopDbContext())
+            {
+                var usersWithOrders = await db.Users
+                    .Where(u => u.PaymentHistories.Any())
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Email
+                    })
+                    .ToListAsync();
+
+                foreach (var user in usersWithOrders)
+                {
+                    Console.WriteLine($"{user.Id}: {user.Email}");
+                }
+            }
+        }
         private async Task WriteOutAllUsers()
         {
             using (var db = new ShopDbContext())
@@ -414,6 +475,20 @@ namespace webbshop.Controller
         }
         private async Task<User> ChangeUserValues(User user)
         {
+            // ser till att objektet vi skickas in inte ändras
+            User returnUser = new User
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                StreetName = user.StreetName,
+                CityId = user.CityId,
+                PhoneNumber = user.PhoneNumber,
+                Email = user.Email,
+                Password = user.Password,
+                BirthDate = user.BirthDate,
+                IsAdmin = user.IsAdmin
+            };
             Console.WriteLine("Förnamn (1)");
             Console.WriteLine("Efternamn (2)");
             Console.WriteLine("Gatuadress (3)");
@@ -426,41 +501,42 @@ namespace webbshop.Controller
 
             int option = InputHelper.GetIntFromUser("Vad vill du ändra: ");
 
+
             switch (option)
             {
                 case 1:
-                    user.FirstName = InputHelper.GetStringFromUser("Ange nytt förnamn: ");
+                    returnUser.FirstName = InputHelper.GetStringFromUser("Ange nytt förnamn: ");
                     break;
                 case 2:
-                    user.LastName = InputHelper.GetStringFromUser("Ange nytt efternamn: ");
+                    returnUser.LastName = InputHelper.GetStringFromUser("Ange nytt efternamn: ");
                     break;
                 case 3:
-                    user.StreetName = InputHelper.GetStringFromUser("Ange ny Gatuadress: ");
+                    returnUser.StreetName = InputHelper.GetStringFromUser("Ange ny Gatuadress: ");
                     break;
                 case 4:
                     await WriteOutAllCities();
-                    user.CityId = InputHelper.GetIntFromUser("Levrantör id: ");
+                    returnUser.CityId = InputHelper.GetIntFromUser("Levrantör id: ");
                     break;
                 case 5:
-                    user.PhoneNumber = InputHelper.GetStringFromUser("Ange nytt telefon nummer: ");
+                    returnUser.PhoneNumber = InputHelper.GetStringFromUser("Ange nytt telefon nummer: ");
                     break;
                 case 6:
-                    user.Email = InputHelper.GetStringFromUser("Ange ny email: ");
+                    returnUser.Email = InputHelper.GetStringFromUser("Ange ny email: ");
                     break;
                 case 7:
-                    user.Password = InputHelper.GetStringFromUser("Ange nytt lösenord: ");
+                    returnUser.Password = InputHelper.GetStringFromUser("Ange nytt lösenord: ");
                     break;
                 case 8:
-                    user.BirthDate = InputHelper.GetDateTimeFromUser();
+                    returnUser.BirthDate = InputHelper.GetDateTimeFromUser();
                     break;
                 case 9:
-                    user.IsAdmin = InputHelper.GetBoolFromUser("Ska användaren vara admin, ja(1) nej(2): ");
+                    returnUser.IsAdmin = InputHelper.GetBoolFromUser("Ska användaren vara admin, ja(1) nej(2): ");
                     break;
 
                 default:
-                    return user;
+                    return returnUser;
             }
-            return user;
+            return returnUser;
 
         }
         private async Task WriteOutAllCities()

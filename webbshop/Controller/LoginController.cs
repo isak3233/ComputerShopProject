@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,7 @@ namespace webbshop.Controller
 
             string? email = null;
             string? password = null;
-            // Automatisk inloggning
-            //Cookie.User = await GetUser("isak.heimdahl@gmail.com", "Kebab");
-            //return new HomePageController();
+
 
 
             while (true)
@@ -58,7 +57,12 @@ namespace webbshop.Controller
                             break;
                         case Buttons.Login:
                             User? user = await GetUser(email, password);
-                            if(user == null)
+                            if(email != null)
+                            {
+                                RegisterLogin(user, email); // Vi behöver inte veta resultatet och vårat program är inte beroende på metoden så vi behöver inte köra await
+                            }
+                            
+                            if (user == null)
                             {
                                 Console.WriteLine("Email eller lösenord är fel");
                             } else
@@ -84,6 +88,52 @@ namespace webbshop.Controller
                 User? user = await db.Users.Where(user => user.Email == email && user.Password == password).SingleOrDefaultAsync();
                 return user;
             }
+        }
+        private async Task RegisterLogin(User? user, string email)
+        {
+
+            
+            using (var db = new ShopDbContext())
+            {
+                if( !(await db.Users.AnyAsync(u => u.Email == email)) ) // Vi kollar om emailen är kopplad till en user i databasen innan vi spara loggning
+                {
+                    return;
+                }
+            }
+            LoginAttempt? loginAttempt = MongoConnection.GetLoginAttemptCollection().AsQueryable().SingleOrDefault(la => la.Email == email);
+            if(loginAttempt == null)
+            {
+                LoginAttempt newLoginAttempt = new LoginAttempt()
+                {
+                    Email = email,
+                    LoginAttemptsAmount = 0,
+                    FailedLoginAttempts = 0,
+
+                };
+                if(user == null)
+                {
+                    newLoginAttempt.FailedLoginAttempts += 1;
+                }  else
+                {
+                    newLoginAttempt.LastLogonDate = DateTime.Now;
+                }
+                newLoginAttempt.LoginAttemptsAmount += 1;
+                await MongoConnection.GetLoginAttemptCollection().InsertOneAsync(newLoginAttempt);
+            } else
+            {
+                if (user == null)
+                {
+                    loginAttempt.FailedLoginAttempts += 1;
+                } else
+                {
+                    loginAttempt.LastLogonDate = DateTime.Now;
+                }
+                loginAttempt.LoginAttemptsAmount += 1;
+                await MongoConnection.GetLoginAttemptCollection().ReplaceOneAsync(la => la.Id == loginAttempt.Id, loginAttempt);
+
+            }
+            
+            
         }
     }
 }

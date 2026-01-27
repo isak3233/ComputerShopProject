@@ -101,7 +101,7 @@ namespace webbshop.Controller
 
                             } else
                             {
-                                Console.WriteLine("has null");
+                                Console.WriteLine("Alla värden är inte inskrivna");
                             }
                                 break;
                         default:

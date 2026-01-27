@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using webbshop.UI;
 
 namespace webbshop
@@ -12,6 +13,8 @@ namespace webbshop
 
             //kund@shop.com
             //Password123!
+
+            
             WebShop webShop = new WebShop();
             await webShop.StartWebShop();
         }

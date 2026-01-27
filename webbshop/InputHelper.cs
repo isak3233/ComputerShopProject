@@ -112,6 +112,26 @@ namespace webbshop
             }
 
         }
+        static public string? GetGenderFromUser(string inputString = "Kvinna(1), Man(2), Ickebinär(3): ", string errorString = "input är tomt")
+        {
+            int input = GetIntFromUser("Kvinna(1), Man(2), Ickebinär(3)");
+            string? result = null;
+            switch (input)
+            {
+                case 1:
+                    result = "Kvinna";
+                    break;
+                case 2:
+                    result = "Man";
+                    break;
+                case 3:
+                    result = "Ickebinär";
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        }
         static public DateTime GetDateTimeFromUser()
         {
             while (true)

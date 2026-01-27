@@ -83,12 +83,14 @@ namespace webbshop.Controller
                             try
                             {
                                 await UpdateProduct(changedProduct);
+                                ChangeMongoProduct(product.Id);
+                                Console.WriteLine("Produkten har nu ändrats :)");
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Något gick fel :(");
+                                Console.WriteLine("Något gick fel :(", ex);
                             }
-                            Console.WriteLine("Produkten har nu ändrats :)");
+                            
 
                             break;
                         case Buttons.AddCategory:
@@ -249,6 +251,16 @@ namespace webbshop.Controller
         {
             var filter = Builders<Models.AddedProduct>.Filter.Eq(p => p.ProductId, productId);
             await MongoConnection.GetAddedProductCollection().DeleteOneAsync(filter);
+        }
+        private async Task ChangeMongoProduct(int productId)
+        {
+            AddedProduct? addedProduct = MongoConnection.GetAddedProductCollection().AsQueryable().SingleOrDefault(ap => ap.ProductId == productId);
+            if (addedProduct == null) return;
+            addedProduct.LastChangeDate = DateTime.Now;
+            addedProduct.ChangeAdminId = Cookie.User.Id;
+            
+            await MongoConnection.GetAddedProductCollection().ReplaceOneAsync(ap => ap.Id == addedProduct.Id, addedProduct);
+            
         }
         private async Task AddMongoProduct(int productId, int adminId)
         {
@@ -481,6 +493,7 @@ namespace webbshop.Controller
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Gender = user.Gender,
                 StreetName = user.StreetName,
                 CityId = user.CityId,
                 PhoneNumber = user.PhoneNumber,
@@ -491,13 +504,14 @@ namespace webbshop.Controller
             };
             Console.WriteLine("Förnamn (1)");
             Console.WriteLine("Efternamn (2)");
-            Console.WriteLine("Gatuadress (3)");
-            Console.WriteLine("Stad (4)");
-            Console.WriteLine("Telefon nummer (5)");
-            Console.WriteLine("Email (6)");
-            Console.WriteLine("Lösenord (7)");
-            Console.WriteLine("Födelsdatum (8)");
-            Console.WriteLine("Ändra till admin använare (9)");
+            Console.WriteLine("Kön (3)");
+            Console.WriteLine("Gatuadress (4)");
+            Console.WriteLine("Stad (5)");
+            Console.WriteLine("Telefon nummer (6)");
+            Console.WriteLine("Email (7)");
+            Console.WriteLine("Lösenord (8)");
+            Console.WriteLine("Födelsdatum (9)");
+            Console.WriteLine("Ändra till admin använare (10)");
 
             int option = InputHelper.GetIntFromUser("Vad vill du ändra: ");
 
@@ -511,25 +525,32 @@ namespace webbshop.Controller
                     returnUser.LastName = InputHelper.GetStringFromUser("Ange nytt efternamn: ");
                     break;
                 case 3:
-                    returnUser.StreetName = InputHelper.GetStringFromUser("Ange ny Gatuadress: ");
+                    string? input = InputHelper.GetGenderFromUser("Ange kön, Kvinna(1) Man(2) Ickebinär(3): ");
+                    if (input != null)
+                    {
+                        returnUser.Gender = input;
+                    }
                     break;
                 case 4:
+                    returnUser.StreetName = InputHelper.GetStringFromUser("Ange ny Gatuadress: ");
+                    break;
+                case 5:
                     await WriteOutAllCities();
                     returnUser.CityId = InputHelper.GetIntFromUser("Levrantör id: ");
                     break;
-                case 5:
+                case 6:
                     returnUser.PhoneNumber = InputHelper.GetStringFromUser("Ange nytt telefon nummer: ");
                     break;
-                case 6:
+                case 7:
                     returnUser.Email = InputHelper.GetStringFromUser("Ange ny email: ");
                     break;
-                case 7:
+                case 8:
                     returnUser.Password = InputHelper.GetStringFromUser("Ange nytt lösenord: ");
                     break;
-                case 8:
+                case 9:
                     returnUser.BirthDate = InputHelper.GetDateTimeFromUser();
                     break;
-                case 9:
+                case 10:
                     returnUser.IsAdmin = InputHelper.GetBoolFromUser("Ska användaren vara admin, ja(1) nej(2): ");
                     break;
 

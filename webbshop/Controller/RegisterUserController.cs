@@ -42,6 +42,14 @@ namespace webbshop.Controller
                             newUser.LastName = InputHelper.GetStringFromUser("Efternamn: ");
                             page.Update(newUser);
                             break;
+                        case Buttons.Gender:
+                            string? gender = InputHelper.GetGenderFromUser();
+                            if(gender != null)
+                            {
+                                newUser.Gender = gender;
+                            }
+                            page.Update(newUser);
+                            break;
                         case Buttons.Email:
                             newUser.Email = InputHelper.GetStringFromUser("Email: ").ToLower();
                             page.Update(newUser);

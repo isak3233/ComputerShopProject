@@ -84,8 +84,7 @@ namespace webbshop.Controller
         {
             using (var db = new ShopDbContext())
             {
-                return await db.Products.Where(Product => Product.IsSelected == true).ToArrayAsync();
-                
+                return await db.Products.Where(Product => Product.IsSelected == true).Take(3).ToArrayAsync();
 
             }
         }

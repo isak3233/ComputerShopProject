@@ -12,5 +12,7 @@ namespace webbshop.Models
         public int ProductId { get; set; }
         public int AdminId { get; set; }
         public DateTime AddedDate { get; set; }
+        public DateTime LastChangeDate { get; set; }
+        public int? ChangeAdminId { get; set; }
     }
 }

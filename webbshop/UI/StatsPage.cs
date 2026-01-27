@@ -14,6 +14,7 @@ namespace webbshop.UI
             MostSoldInCountry,
             MostProfitableProducts,
             SalesPerCategory,
+            GenderBuyProduct,
             BestCustomers,
             CountriesWithBestCustomers,
             AverageAgeProducts,
@@ -39,19 +40,22 @@ namespace webbshop.UI
             var salesPerCategoryW = new Window("(4)", 40, 50, new List<string> { "Försäljning per kategori" });
             Windows.Add(salesPerCategoryW);
 
-            var bestCustomersW = new Window("(5)", 40, 60, new List<string> { "Top 10 mest spenderande kunderna" });
+            var genderBuyProductW = new Window("(5)", 40, 60, new List<string> { "Produkternas kön förhållande" });
+            Windows.Add(genderBuyProductW);
+
+            var bestCustomersW = new Window("(6)", 40, 70, new List<string> { "Top 10 mest spenderande kunderna" });
             Windows.Add(bestCustomersW);
 
-            var countryWithBestCustomersW = new Window("(6)", 40, 70, new List<string> { "Länder med bäst kunder" });
+            var countryWithBestCustomersW = new Window("(7)", 40, 80, new List<string> { "Länder med bäst kunder" });
             Windows.Add(countryWithBestCustomersW);
 
-            var averageAgeOnProductsW = new Window("(7)", 40, 80, new List<string> { "Medelålrder per produkt" });
+            var averageAgeOnProductsW = new Window("(8)", 40, 90, new List<string> { "Medelålrder per produkt" });
             Windows.Add(averageAgeOnProductsW);
 
-            var accountSecurityW = new Window("(8)", 60, 30, new List<string> { "Konto säkerhet" });
+            var accountSecurityW = new Window("(9)", 60, 30, new List<string> { "Konto säkerhet" });
             Windows.Add(accountSecurityW);
 
-            var productAddedInfoW = new Window("(9)", 60, 40, new List<string> { "Produkt loggning" });
+            var productAddedInfoW = new Window("(10)", 60, 40, new List<string> { "Produkt loggning" });
             Windows.Add(productAddedInfoW);
             this.Render();
         }

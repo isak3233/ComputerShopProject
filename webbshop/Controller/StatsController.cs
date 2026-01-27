@@ -46,6 +46,9 @@ namespace webbshop.Controller
                         case Buttons.SalesPerCategory:
                             WriteOutSalesPerCategory(await GetPaymentHistory());
                             break;
+                        case Buttons.GenderBuyProduct:
+                            WriteOutGenderProductRatio(await GetPaymentHistory());
+                            break;
                         case Buttons.BestCustomers:
                             WriteOutBestCustomers(await GetPaymentHistory());
                             break;
@@ -73,7 +76,13 @@ namespace webbshop.Controller
         {
             AddedProduct[] addedProductLogs = MongoConnection.GetAddedProductCollection().AsQueryable().ToArray();
 
-            int[] adminIds = addedProductLogs.Select(ap => ap.AdminId).ToArray();
+            int[] adminIds = addedProductLogs
+                .SelectMany(ap => ap.ChangeAdminId.HasValue
+                    ? new[] { ap.AdminId, ap.ChangeAdminId.Value }
+                    : new[] { ap.AdminId })
+                .Distinct()
+                .ToArray();
+
             int[] productIds = addedProductLogs.Select(ap => ap.ProductId).ToArray();
 
             // Ser till att vi startar båda metoderna samtidigt så dom inte väntar efter varandra
@@ -92,9 +101,12 @@ namespace webbshop.Controller
             {
                 User? admin = admins.Where(a => a.Id == addedProductLog.AdminId).SingleOrDefault();
                 Product? product = products.Where(p => p.Id == addedProductLog.ProductId).SingleOrDefault();
-                if(admin != null && product != null)
+                User? changeAdmin = admins.Where(a => a.Id == addedProductLog.ChangeAdminId).SingleOrDefault();
+                string latestChangeString = addedProductLog.LastChangeDate.Year == 1 ? "" : "Senast ändrad " + addedProductLog.LastChangeDate + " av " + changeAdmin.Email;
+                if (admin != null && product != null)
                 {
-                    Console.WriteLine($"{admin.Id}: {admin.Email}: La till produkten '{product.Name}' datumet {addedProductLog.AddedDate}");
+                    
+                    Console.WriteLine($"{admin.Id}: {admin.Email}: La till produkten '{product.Name}' datumet {addedProductLog.AddedDate}, {latestChangeString}");
                 }
 
             }
@@ -270,6 +282,34 @@ namespace webbshop.Controller
                 Console.WriteLine($"\t{index}: {topCustomer.Customer} | Spenderat Totalt: {topCustomer.TotalSpent:C}");
                 index++;
             }
+        }
+        private void WriteOutGenderProductRatio(PaymentHistory[] paymentHistories)
+        {
+            using (var db = new ShopDbContext())
+            {
+                var genderBuyRatio =
+                    paymentHistories
+                        .GroupBy(ph => ph.Product)
+                        .Select(g =>
+                        {
+                            var total = g.Count();
+
+                            return new
+                            {
+                                Product = g.Key.Name,
+
+                                FemaleRatio = g.Count(x => x.User.Gender == "Kvinna") / (double)total,
+                                MaleRatio = g.Count(x => x.User.Gender == "Man") / (double)total,
+                                NonBinaryRatio = g.Count(x => x.User.Gender == "Ickebinär") / (double)total
+                            };
+                        })
+                        .ToArray();
+                foreach (var product in genderBuyRatio)
+                {
+                    Console.WriteLine($"{product.Product}: Kvinnor: {(int)(product.FemaleRatio * 100)}% Män: {(int)(product.MaleRatio * 100)}% Ickebinär: {(int)(product.NonBinaryRatio * 100)}%");
+                }
+            }
+           
         }
         private void WriteOutSalesPerCategory(PaymentHistory[] paymentHistories)
         {

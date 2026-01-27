@@ -325,6 +325,7 @@ namespace webbshop
             {
                 FirstName = "admin",
                 LastName = "",
+                Gender = "Ickebinär",
                 Email = $"admin@shop.com",
                 Password = "Password123!",
                 PhoneNumber = $"",
@@ -337,6 +338,7 @@ namespace webbshop
             {
                 FirstName = "kund",
                 LastName = "",
+                Gender = "Ickebinär",
                 Email = $"kund@shop.com",
                 Password = "Password123!",
                 PhoneNumber = $"",
@@ -346,7 +348,6 @@ namespace webbshop
                 IsAdmin = false,
             });
             int userIndex = 1;
-
             foreach (var country in countries)
             {
                 var cities = country.Cities.ToList();
@@ -361,6 +362,7 @@ namespace webbshop
                     {
                         FirstName = firstName,
                         LastName = lastName,
+                        Gender = GetRandomGender(),
                         Email = $"{firstName.ToLower()}.{lastName.ToLower()}{userIndex}@shop.se",
                         Password = "Password123!",
                         PhoneNumber = $"07{userIndex % 10}-{100000 + userIndex}",
@@ -424,6 +426,22 @@ namespace webbshop
             }
 
             await context.SaveChangesAsync();
+        }
+        public static string GetRandomGender()
+        {
+            int value = Random.Shared.Next(100); 
+
+            if (value < 5)
+            {
+                return "Ickebinär";
+            }
+            else if (value < 52)
+            {
+                return "Kvinna";
+            } else
+            {
+                return "Man";
+            }
         }
     }
 

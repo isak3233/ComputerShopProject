@@ -16,6 +16,7 @@ namespace webbshop
             using(var db = new ShopDbContext())
             {
                 // Om databasen är redan populerad så kommer inget hända
+                
                 Console.WriteLine("Populerar Databasen...");
                 await DatabaseSeeder.PopulateDatabase(db);
             }

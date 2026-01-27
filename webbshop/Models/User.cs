@@ -13,6 +13,7 @@ namespace webbshop.Models
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string Gender { get; set; }
         public string StreetName { get; set; }
         public virtual City? City { get; set; }
         public int? CityId { get; set; }

@@ -275,10 +275,10 @@ namespace webbshop.Controller
         }
         private async Task UpdateMongoUserEmail(string oldEmail, string newEmail)
         {
-            LoginAttempt? loginAttempt = MongoConnection.GetLoginAttemptCollection().AsQueryable().SingleOrDefault(la => la.Email == oldEmail);
-            if (loginAttempt == null) return;
-            loginAttempt.Email = newEmail;
-            await MongoConnection.GetLoginAttemptCollection().ReplaceOneAsync(la => la.Id == loginAttempt.Id, loginAttempt);
+            LoginLog? loginLog = MongoConnection.GetLoginLogCollection().AsQueryable().SingleOrDefault(la => la.Email == oldEmail);
+            if (loginLog == null) return;
+            loginLog.Email = newEmail;
+            await MongoConnection.GetLoginLogCollection().ReplaceOneAsync(la => la.Id == loginLog.Id, loginLog);
         }
         private async Task UpdateProduct(Product product)
         {

@@ -17,15 +17,15 @@ namespace webbshop
             return client;
         }
 
-        public static IMongoCollection<Models.LoginAttempt> GetLoginAttemptCollection()
+        public static IMongoCollection<Models.LoginLog> GetLoginLogCollection()
         {
             var client = GetClient();
 
             var dataBase = client.GetDatabase("WebShop");
 
-            var loginAttemptCollection = dataBase.GetCollection<Models.LoginAttempt>("LoginAttempts");
+            var loginLogCollection = dataBase.GetCollection<Models.LoginLog>("LoginLogs");
 
-            return loginAttemptCollection;
+            return loginLogCollection;
         }
         public static IMongoCollection<Models.AddedProduct> GetAddedProductCollection()
         {

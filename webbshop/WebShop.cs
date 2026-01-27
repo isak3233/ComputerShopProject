@@ -11,9 +11,18 @@ namespace webbshop
 {
     internal class WebShop
     {
+        static public CancellationTokenSource Cts; // En variable som vi kan kalla cancel på för att stänga av metoder som beror på den
         public async Task StartWebShop()
         {
-            using(var db = new ShopDbContext())
+            // Sätter upp vårat "Alarm" och ser till när konsol applikationen stängs av så skickar vi till databasen att vi logar ut
+            AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
+            {
+                if (Cookie.User == null) return;
+                Cts.Cancel();
+                await LoginController.SetLoginSession(Cookie.User, DateTime.UtcNow);
+            };
+
+            using (var db = new ShopDbContext())
             {
                 // Om databasen är redan populerad så kommer inget hända
                 
@@ -27,5 +36,6 @@ namespace webbshop
                 currentController = await currentController.ActivateController();
             }
         }
+
     }
 }

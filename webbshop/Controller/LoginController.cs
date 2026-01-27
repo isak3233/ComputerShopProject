@@ -18,6 +18,8 @@ namespace webbshop.Controller
 
             if(Cookie.User != null )
             {
+                WebShop.Cts.Cancel();
+                SetLoginSession(Cookie.User, DateTime.UtcNow);
                 Cookie.User = null;
                 Cookie.DeliveryOption = null;
                 Cookie.DeliveryProcessUser = null;
@@ -59,7 +61,7 @@ namespace webbshop.Controller
                             User? user = await GetUser(email, password);
                             if(email != null)
                             {
-                                RegisterLogin(user, email); // Vi behöver inte veta resultatet och vårat program är inte beroende på metoden så vi behöver inte köra await
+                                await RegisterLogin(user, email); 
                             }
                             
                             if (user == null)
@@ -68,6 +70,10 @@ namespace webbshop.Controller
                             } else
                             {
                                 Cookie.User = user;
+
+                                // Sätter upp ett nytt alarm och sedan startar våran loop som skickar till databasen att vi fortfarande är inloggade
+                                WebShop.Cts = new CancellationTokenSource();
+                                StartUpdateLoginSessionLoop(WebShop.Cts.Token); // Vi behöver inte veta resultatet och vårat program är inte beroende på metoden så vi behöver inte köra await
                                 return new HomePageController();
                             }
                             break;
@@ -80,6 +86,25 @@ namespace webbshop.Controller
                 }
 
             }
+        }
+        public async Task StartUpdateLoginSessionLoop(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                if (Cookie.User == null) return;
+                await SetLoginSession(Cookie.User, DateTime.UtcNow.AddMinutes(5));
+                await Task.Delay(TimeSpan.FromMinutes(4), stoppingToken);
+                
+                
+            }
+        }
+        static public async Task SetLoginSession(User user, DateTime expireDate)
+        {
+            LoginLog? loginLog = MongoConnection.GetLoginLogCollection().AsQueryable().SingleOrDefault(la => la.Email == user.Email);
+            if (loginLog == null) return;
+            loginLog.LoginSessionExpire = expireDate;
+            await MongoConnection.GetLoginLogCollection().ReplaceOneAsync(la => la.Id == loginLog.Id, loginLog);
+
         }
         public async Task<User?> GetUser(string? email, string? password)
         {
@@ -100,10 +125,10 @@ namespace webbshop.Controller
                     return;
                 }
             }
-            LoginAttempt? loginAttempt = MongoConnection.GetLoginAttemptCollection().AsQueryable().SingleOrDefault(la => la.Email == email);
-            if(loginAttempt == null)
+            LoginLog? loginLog = MongoConnection.GetLoginLogCollection().AsQueryable().SingleOrDefault(la => la.Email == email);
+            if(loginLog == null)
             {
-                LoginAttempt newLoginAttempt = new LoginAttempt()
+                LoginLog newLoginLog = new LoginLog()
                 {
                     Email = email,
                     LoginAttemptsAmount = 0,
@@ -112,24 +137,24 @@ namespace webbshop.Controller
                 };
                 if(user == null)
                 {
-                    newLoginAttempt.FailedLoginAttempts += 1;
+                    newLoginLog.FailedLoginAttempts += 1;
                 }  else
                 {
-                    newLoginAttempt.LastLogonDate = DateTime.Now;
+                    newLoginLog.LastLogonDate = DateTime.UtcNow;
                 }
-                newLoginAttempt.LoginAttemptsAmount += 1;
-                await MongoConnection.GetLoginAttemptCollection().InsertOneAsync(newLoginAttempt);
+                newLoginLog.LoginAttemptsAmount += 1;
+                await MongoConnection.GetLoginLogCollection().InsertOneAsync(newLoginLog);
             } else
             {
                 if (user == null)
                 {
-                    loginAttempt.FailedLoginAttempts += 1;
+                    loginLog.FailedLoginAttempts += 1;
                 } else
                 {
-                    loginAttempt.LastLogonDate = DateTime.Now;
+                    loginLog.LastLogonDate = DateTime.UtcNow;
                 }
-                loginAttempt.LoginAttemptsAmount += 1;
-                await MongoConnection.GetLoginAttemptCollection().ReplaceOneAsync(la => la.Id == loginAttempt.Id, loginAttempt);
+                loginLog.LoginAttemptsAmount += 1;
+                await MongoConnection.GetLoginLogCollection().ReplaceOneAsync(la => la.Id == loginLog.Id, loginLog);
 
             }
             

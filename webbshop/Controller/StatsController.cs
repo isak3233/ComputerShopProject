@@ -64,6 +64,9 @@ namespace webbshop.Controller
                         case Buttons.ProductAdded:
                             await WriteOutProductAddedLogs();
                             break;
+                        case Buttons.OnlineUsers:
+                            await WriteOutOnlineUsers();
+                            break;
                         default:
                             page.Render();
                             break;
@@ -71,6 +74,29 @@ namespace webbshop.Controller
                 }
 
             }
+        }
+        private async Task WriteOutOnlineUsers()
+        {
+            var loginLogs = MongoConnection.GetLoginLogCollection().AsQueryable().ToArray();
+            List<string> onlineUserEmails = new List<string>();
+            foreach(var loginLog in loginLogs)
+            {
+                if(DateTime.UtcNow < loginLog.LoginSessionExpire)
+                {
+                    onlineUserEmails.Add(loginLog.Email);
+                }
+            }
+            User[] onlineUsers;
+            using(var db = new ShopDbContext())
+            {
+                onlineUsers = await db.Users.Where(u => onlineUserEmails.Contains(u.Email)).ToArrayAsync();
+            }
+            Console.WriteLine("Användare online: ");
+            foreach (var onlineUser in onlineUsers)
+            {
+                Console.WriteLine($"{onlineUser.FirstName} {onlineUser.LastName} | {onlineUser.Email} | Användar id: {onlineUser.Id}");
+            }
+
         }
         private async Task WriteOutProductAddedLogs()
         {
@@ -134,17 +160,17 @@ namespace webbshop.Controller
         
         private async Task WriteOutUserSecurity()
         {
-            LoginAttempt[] loginAttempts = MongoConnection.GetLoginAttemptCollection().AsQueryable().ToArray();
-            string[] emails = loginAttempts.Select(la => la.Email).ToArray();
+            LoginLog[] loginLogs = MongoConnection.GetLoginLogCollection().AsQueryable().ToArray();
+            string[] emails = loginLogs.Select(la => la.Email).ToArray();
             User[] users = await GetUsersFromEmails(emails);
 
 
             foreach (var user in users)
             {
-                LoginAttempt? loginAttempt = loginAttempts.Where(la => la.Email == user.Email).SingleOrDefault();
-                if(loginAttempt != null)
+                LoginLog? loginLog = loginLogs.Where(la => la.Email == user.Email).SingleOrDefault();
+                if(loginLog != null)
                 {
-                    SecurityLevel securityLvl = CalculateSecurity(loginAttempt);
+                    SecurityLevel securityLvl = CalculateSecurity(loginLog);
                     string securityString;
                     switch(securityLvl)
                     {
@@ -159,7 +185,7 @@ namespace webbshop.Controller
                             break;
 
                     }
-                    Console.WriteLine($"{user.Email} | Konto säkerhet: {securityString} | Inloggning försök: {loginAttempt.LoginAttemptsAmount} | Inloggning försök som misslyckats: {loginAttempt.FailedLoginAttempts}");
+                    Console.WriteLine($"{user.Email} | Konto säkerhet: {securityString} | Inloggning försök: {loginLog.LoginAttemptsAmount} | Inloggning försök som misslyckats: {loginLog.FailedLoginAttempts}");
                 }
             }
         }
@@ -170,7 +196,7 @@ namespace webbshop.Controller
                 return await db.Users.Where(u => emails.Contains(u.Email)).ToArrayAsync();
             }
         }
-        private SecurityLevel CalculateSecurity(LoginAttempt attempt)
+        private SecurityLevel CalculateSecurity(LoginLog attempt)
         {
             if (attempt.LoginAttemptsAmount < 5)
             {

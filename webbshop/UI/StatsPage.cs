@@ -19,7 +19,8 @@ namespace webbshop.UI
             CountriesWithBestCustomers,
             AverageAgeProducts,
             AccountSecurity,
-            ProductAdded
+            ProductAdded,
+            OnlineUsers
         }
         public StatsPage()
         {
@@ -52,11 +53,14 @@ namespace webbshop.UI
             var averageAgeOnProductsW = new Window("(8)", 40, 90, new List<string> { "Medelålrder per produkt" });
             Windows.Add(averageAgeOnProductsW);
 
-            var accountSecurityW = new Window("(9)", 60, 30, new List<string> { "Konto säkerhet" });
+            var accountSecurityW = new Window("(9)", 70, 30, new List<string> { "Konto säkerhet" });
             Windows.Add(accountSecurityW);
 
-            var productAddedInfoW = new Window("(10)", 60, 40, new List<string> { "Produkt loggning" });
+            var productAddedInfoW = new Window("(10)", 70, 40, new List<string> { "Produkt loggning" });
             Windows.Add(productAddedInfoW);
+
+            var userOnlineStatus = new Window("(11)", 70, 50, new List<string> { "Se inloggade användare" });
+            Windows.Add(userOnlineStatus);
             this.Render();
         }
     }

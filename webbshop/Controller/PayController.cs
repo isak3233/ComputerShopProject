@@ -51,7 +51,7 @@ namespace webbshop.Controller
                         case Buttons.Delivery:
                             return new DeliveryController();
                         case Buttons.Pay:
-                            // Sparar våran order, Tar bort produkterna från vagnen, Tar bort antalet produkter beställt från lager saldot
+                            // Sparar våran order, Tar bort produkterna från vagnen
                             List<Task> tasks = new List<Task>();
                             foreach (var cartProduct in cartProducts)
                             {

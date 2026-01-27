@@ -48,6 +48,7 @@ namespace webbshop
         {
             if (context.Users.Any())
                 return; // redan seedad
+            Console.WriteLine("Populerar Databasen...");
 
             // =====================
             // Payment & Delivery

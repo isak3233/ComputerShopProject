@@ -14,11 +14,15 @@ namespace webbshop.Controller
 {
     public class AdminController : IController
     {
+        // Använder en klass som generiskt kan lägga till, ta bort och uppdatera databasen för att hålla filen så DRY som möjligt
         private readonly DatabaseActions<Product> _productDb = new();
         private readonly DatabaseActions<Supplier> _supplierDb = new();
         private readonly DatabaseActions<Category> _categoryDb = new();
         private readonly DatabaseActions<User> _userDb = new();
         private readonly DatabaseActions<PaymentHistory> _paymentDb = new();
+
+        // Använder flows metoder just i denna controller eftersom annars blir switch stamenten väldigt lång och kan bli svår och läsa/förstå
+        
         public async Task<IController> ActivateController()
         {
 

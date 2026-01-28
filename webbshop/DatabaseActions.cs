@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using webbshop.Models;
 
-namespace webbshop.Controller
+namespace webbshop
 {
     public enum DbAction
     {

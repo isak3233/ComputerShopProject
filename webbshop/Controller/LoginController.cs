@@ -87,15 +87,15 @@ namespace webbshop.Controller
 
             }
         }
-        public async Task StartUpdateLoginSessionLoop(CancellationToken stoppingToken)
+        static public async Task StartUpdateLoginSessionLoop(CancellationToken stoppingToken)
         {
+            
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (Cookie.User == null) return;
                 await SetLoginSession(Cookie.User, DateTime.UtcNow.AddMinutes(5));
                 await Task.Delay(TimeSpan.FromMinutes(4), stoppingToken);
-                
-                
+
             }
         }
         static public async Task SetLoginSession(User user, DateTime expireDate)
@@ -114,7 +114,7 @@ namespace webbshop.Controller
                 return user;
             }
         }
-        private async Task RegisterLogin(User? user, string email)
+        static public async Task RegisterLogin(User? user, string email)
         {
 
             

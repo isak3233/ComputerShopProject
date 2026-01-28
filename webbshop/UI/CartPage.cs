@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +15,14 @@ namespace webbshop.UI
         {
             HomePage,
             DeliveryOptions,
+            ShowMore = 8,
+            ShowLess = 9
         }
         public CartPage()
         {
             Update();
         }
-        public void Update(List<CartProduct>? cartProducts = null)
+        public void Update(List<CartProduct>? cartProducts = null, int indexOn = 0)
         {
             Windows = new List<Window>();
             var backToHomePageW = new Window("(1)", 0, 0, new List<string>() { "<- Gå tillbaka till startsidan" });
@@ -39,23 +42,32 @@ namespace webbshop.UI
                 return;
             }
 
-            // Skriver ut all produkter
-            int col = 0;
-            int row = 0;
-            for (int i = 0; i < cartProducts.Count; i++)
-            {
-                if (col % 2 == 0)
-                {
-                    row++;
-                    col = 0;
-                }
-                var cartProduct = cartProducts[i];
-                var cartProductW = new Window($"({i + 3})", 10 + col * 30, 10 + row * 20, new List<string>() { cartProduct.Product.Name, cartProduct.Product.Price.ToString() + "kr", "Antal: " + cartProduct.Amount.ToString() });
-                Windows.Add(cartProductW);
-                col++;
-            }
 
-            // Skriver ut det totala priset
+
+            var showMoreW = new Window("(9)", 60, 80, new List<string> { "Gå fram i kundvagnen ->" });
+            var showLessW = new Window("(10)", 0, 80, new List<string> { "<- Gå tillbaka i kundvagnen" });
+            var windowsToAdd = new List<Window>();
+            foreach (var cartProduct in cartProducts)
+            {
+                var productW = new Window("", 0, 0, new List<string>() { cartProduct.Product.Name, cartProduct.Product.Price.ToString() + "kr", "Antal: " + cartProduct.Amount.ToString() });
+                windowsToAdd.Add(productW);
+            }
+            int amountOfCols = 2;
+            int amountOfRows = 3;
+            int startX = 10;
+            int startY = 30;
+            int xPerWindow = 30;
+            int yPerWindow = 20;
+            int choiceStart = 3;
+            AddDynamicWindows(indexOn, windowsToAdd, showMoreW, showLessW, amountOfCols, amountOfRows, startX, startY, xPerWindow, yPerWindow, choiceStart);
+
+
+
+
+
+            
+
+
             decimal total = 0;
             foreach (var cartProduct in cartProducts)
             {

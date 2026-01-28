@@ -12,13 +12,15 @@ namespace webbshop.UI
         public enum Buttons
         {
             Category,
-            Search
+            Search,
+            ShowMore = 11,
+            ShowLess = 12,
         }
         public ShopPage()
         {
             Update();
         }
-        public void Update(Product[]? products = null, string? searchInput = null)
+        public void Update(Product[]? products = null, string? searchInput = null, int indexOn = 0)
         {
             Windows = new List<Window>();
             var categoryPageW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till kategori sidan" });
@@ -39,24 +41,26 @@ namespace webbshop.UI
             }
             else
             {
-                int index = 1;
-                int col = 0;
-                int row = 0;
-
-                foreach (var product in products)
+                var showMoreW = new Window("(12)", 90, 80, new List<string> { "Gå fram i produkter ->" });
+                var showLessW = new Window("(13)", 30, 80, new List<string> { "<- Gå tillbaka i produkter" });
+                var windowsToAdd = new List<Window>();
+                foreach(var product in products)
                 {
-                    if (col % 3 == 0)
-                    {
-                        row++;
-                        col = 0;
-                    }
-                    var productW = new Window($"({index + 2})", 20 + 30 * (col), 30 + 20 * row, new List<string> { product.Name, product.Price.ToString() + "kr", "Visa mer info ->" });
-                    Windows.Add(productW);
-                    index++;
-                    col++;
+                    var productW = new Window("", 0, 0, new List<string> { product.Name, product.Price.ToString() + "kr", "Visa mer info ->" });
+                    windowsToAdd.Add(productW);
                 }
+                int amountOfCols = 3;
+                int amountOfRows = 3;
+                int startX = 20;
+                int startY = 30;
+                int xPerWindow = 30;
+                int yPerWindow = 20;
+                int choiceStart = 3;
+                AddDynamicWindows(indexOn, windowsToAdd, showMoreW, showLessW, amountOfCols, amountOfRows, startX, startY, xPerWindow, yPerWindow, choiceStart);
+                
+
             }
-            var searchField = new Window(searchInput == null ? "(2)" : "Sökt (2)", 50, 90, new List<string> { searchInput == null ? "Sök bland alla produkter" : searchInput });
+            var searchField = new Window(searchInput == null ? "(2)" : "Sökt (2)", 90 , 0, new List<string> { searchInput == null ? "Sök bland alla produkter" : searchInput });
             Windows.Add(searchField);
             this.Render();
         }

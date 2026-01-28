@@ -16,12 +16,12 @@ namespace webbshop.Controller
         
         public async Task<IController> ActivateController()
         {
-            Category[] categories = new Category[3];
+            List<Category> categories = new List<Category>();
             CategoryPage page = new CategoryPage();
-
+            int categoriIndexOn = 0;
 
             categories = await GetCategories();
-            page.Update(categories);
+            page.Update(categories, categoriIndexOn);
             
             while (true)
             {
@@ -32,19 +32,29 @@ namespace webbshop.Controller
                 }
                 else
                 {
+                    if (option > 1 && option < 8)
+                    {
+                        int categoriSelected = (option.Value - 2) + categoriIndexOn;
+                        return new ShopController(categories[categoriSelected]);
+                    }
                     option -= 1;
                     switch ((Buttons)option)
                     {
                         case Buttons.HomePage:
                             return new HomePageController();
-                        case Buttons.Category1:
-                            if(categories.Length > 0) return new ShopController(categories[0]);
+                        case Buttons.ShowMore:
+                            if(categoriIndexOn + 6 < categories.Count())
+                            {
+                                categoriIndexOn += 6;
+                            }
+                            page.Update(categories, categoriIndexOn);
                             break;
-                        case Buttons.Category2:
-                            if (categories.Length > 1) return new ShopController(categories[1]);
-                            break;
-                        case Buttons.Category3:
-                            if (categories.Length > 2) return new ShopController(categories[2]);
+                        case Buttons.ShowLess:
+                            if(categoriIndexOn - 6 >= 0)
+                            {
+                                categoriIndexOn -= 6;
+                            }
+                            page.Update(categories, categoriIndexOn);
                             break;
                         default:
                             break;
@@ -54,11 +64,11 @@ namespace webbshop.Controller
 
             }
         }
-        private async Task<Category[]> GetCategories()
+        private async Task<List<Category>> GetCategories()
         {
             using (var db = new ShopDbContext())
             {
-                return await db.Categories.ToArrayAsync();
+                return await db.Categories.ToListAsync();
                 
             }
         }

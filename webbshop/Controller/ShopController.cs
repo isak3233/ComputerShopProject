@@ -20,12 +20,13 @@ namespace webbshop.Controller
         }
         public async Task<IController> ActivateController()
         {
+            string? searchInput = null;
+            int productIndexOn = 0;
             var loadingProducts = GetProductsFromCategory(Category);
             ShopPage page = new ShopPage();
 
             var products = await loadingProducts;
-            page.Update(products);
-            page.Render();
+            page.Update(products, searchInput, productIndexOn);
 
 
             while (true)
@@ -37,11 +38,10 @@ namespace webbshop.Controller
                 }
                 else
                 {
-                    if(option > 2 && (option - 3) < products.Length)
+                    if(option > 2 && (option - 3) < 9)
                     {
-                        option -= 3;
-                        var selectedProduct = products[option.Value];
-                        return new ProductController(selectedProduct);
+                        int productSelected = (option.Value - 3) + productIndexOn;
+                        return new ProductController(products[productSelected]);
 
                     }
 
@@ -52,10 +52,24 @@ namespace webbshop.Controller
                             return new CategoryController();
                         case Buttons.Search:
                             Console.Write("Sök: ");
-                            string? searchInput = Console.ReadLine();
+                            searchInput = Console.ReadLine();
                             if (searchInput == null) break;
                             products = await GetProductFromSearch(searchInput);
                             page.Update(products, searchInput);
+                            break;
+                        case Buttons.ShowMore:
+                            if(productIndexOn + 9 < products.Count())
+                            {
+                                productIndexOn += 9;
+                            }
+                            page.Update(products, searchInput, productIndexOn);
+                            break;
+                        case Buttons.ShowLess:
+                            if (productIndexOn - 9 >= 0)
+                            {
+                                productIndexOn -= 9;
+                            }
+                            page.Update(products, searchInput, productIndexOn);
                             break;
                         default:
                             page.Render();

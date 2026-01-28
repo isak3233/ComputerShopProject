@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,14 +14,16 @@ namespace webbshop.UI
         public enum Buttons
         {
             Delivery,
-            Pay
+            Pay,
+            ShowMore,
+            ShowLess
         }
         public PayPage()
         {
             Update();
 
         }
-        public void Update(PaymentOption[]? paymentOption = null, CartProduct[]? cartProducts = null, DeliveryOption[]? deliveryOption = null)
+        public void Update(PaymentOption[]? paymentOption = null, CartProduct[]? cartProducts = null, DeliveryOption[]? deliveryOption = null, int indexOn = 0)
         {
             Windows = new List<Window>();
             var backToDeliveryOptionsW = new Window("(1)", 0, 0, new List<string> { "<- Gå tillbaka till fraktalternativ" });
@@ -59,26 +62,34 @@ namespace webbshop.UI
                 }
                 else
                 {
-                    var paymentOptionW = new Window($"({i + 3})", 70, 50 + i * 15, new List<string> { option.Name });
+                    var paymentOptionW = new Window($"({i + 5})", 70, 50 + i * 15, new List<string> { option.Name });
                     Windows.Add(paymentOptionW);
                 }
             }
 
-            // Produkter
-            int col = 0;
-            int row = 0;
-            for (int i = 0; i < cartProducts.Length; i++)
+
+            //Produkter
+            var showMoreW = new Window("(3)", 60, 90, new List<string> { "Gå fram i produkter ->" });
+            var showLessW = new Window("(4)", 30, 90, new List<string> { "<- Gå tillbaka i produkter" });
+            var windowsToAdd = new List<Window>();
+            foreach (var cartProduct in cartProducts)
             {
-                if (col % 2 == 0)
-                {
-                    row++;
-                    col = 0;
-                }
-                var cartProduct = cartProducts[i];
-                var cartProductW = new Window($"", 15 + col * 30, 15 + row * 20, new List<string>() { cartProduct.Product.Name, cartProduct.Product.Price.ToString() + "kr", "Antal: " + cartProduct.Amount.ToString() });
-                Windows.Add(cartProductW);
-                col++;
+                var productW = new Window("", 0, 0, new List<string>() { cartProduct.Product.Name, cartProduct.Product.Price.ToString() + "kr", "Antal: " + cartProduct.Amount.ToString() });
+                windowsToAdd.Add(productW);
             }
+            int amountOfCols = 2;
+            int amountOfRows = 3;
+            int startX = 15;
+            int startY = 35;
+            int xPerWindow = 30;
+            int yPerWindow = 20;
+            AddDynamicWindows(indexOn, windowsToAdd, showMoreW, showLessW, amountOfCols, amountOfRows, startX, startY, xPerWindow, yPerWindow);
+
+
+
+            
+            
+            
 
             var payW = new Window("(2)", 90, 90, new List<string> { "Betala ->" });
             Windows.Add(payW);

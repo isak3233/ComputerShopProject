@@ -16,7 +16,8 @@ namespace webbshop.Controller
 {
     internal class StatsController : IController
     {
-        private string connectionString = "Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"; // För dapper
+        // För dapper
+        private string connectionString = "Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         public async Task<IController> ActivateController()
         {
             StatsPage page = new StatsPage();
@@ -75,19 +76,118 @@ namespace webbshop.Controller
 
             }
         }
+        
+        public enum SecurityLevel
+        {
+            Secure,
+            Unsecure,
+            VeryUnsecure
+        }
+        private async Task<User[]> GetUsersFromIds(int[] userIds)
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.Users.Where(u => userIds.Contains(u.Id)).ToArrayAsync();
+            }
+        }
+        private async Task<Product[]> GetProductsFromIds(int[] productIds)
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.Products.Where(p => productIds.Contains(p.Id)).ToArrayAsync();
+            }
+        }
+        
+        
+        private async Task<User[]> GetUsersFromEmails(string[] emails)
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.Users.Where(u => emails.Contains(u.Email)).ToArrayAsync();
+            }
+        }
+        private SecurityLevel CalculateSecurity(LoginLog attempt)
+        {
+            if (attempt.LoginAttemptsAmount < 5)
+            {
+                return SecurityLevel.Secure;
+            }
+
+            double failRatio = (double)attempt.FailedLoginAttempts / attempt.LoginAttemptsAmount * 100;
+
+            if (failRatio < 40)
+            {
+                return SecurityLevel.Secure;
+            }
+            else if (failRatio < 60)
+            {
+                return SecurityLevel.Unsecure;
+            }
+            else
+            {
+                return SecurityLevel.VeryUnsecure;
+            }
+                
+        }
+        private async Task<PaymentHistory[]> GetPaymentHistory()
+        {
+            using (var db = new ShopDbContext())
+            {
+                return await db.PaymentHistories
+                    .Include(ph => ph.Product)
+                        .ThenInclude(p => p.Category)
+                    .Include(ph => ph.DeliveryCity)
+                        .ThenInclude(c => c.Country)
+                    .Include(ph => ph.User)
+                    .ToArrayAsync();
+            }
+        }
+
+        // Utskrift metoder
+        private async Task WriteOutUserSecurity()
+        {
+            LoginLog[] loginLogs = MongoConnection.GetLoginLogCollection().AsQueryable().ToArray();
+            string[] emails = loginLogs.Select(la => la.Email).ToArray();
+            User[] users = await GetUsersFromEmails(emails);
+
+
+            foreach (var user in users)
+            {
+                LoginLog? loginLog = loginLogs.Where(la => la.Email == user.Email).SingleOrDefault();
+                if (loginLog != null)
+                {
+                    SecurityLevel securityLvl = CalculateSecurity(loginLog);
+                    string securityString;
+                    switch (securityLvl)
+                    {
+                        case SecurityLevel.Unsecure:
+                            securityString = "Osäker";
+                            break;
+                        case SecurityLevel.VeryUnsecure:
+                            securityString = "Väldigt osäkert";
+                            break;
+                        default:
+                            securityString = "Säker";
+                            break;
+
+                    }
+                    Console.WriteLine($"{user.Email} | Konto säkerhet: {securityString} | Inloggning försök: {loginLog.LoginAttemptsAmount} | Inloggning försök som misslyckats: {loginLog.FailedLoginAttempts}");
+                }
+            }
+        }
         private async Task WriteOutOnlineUsers()
         {
             var loginLogs = MongoConnection.GetLoginLogCollection().AsQueryable().ToArray();
             List<string> onlineUserEmails = new List<string>();
-            foreach(var loginLog in loginLogs)
+            foreach (var loginLog in loginLogs)
             {
-                if(DateTime.UtcNow < loginLog.LoginSessionExpire)
+                if (DateTime.UtcNow < loginLog.LoginSessionExpire)
                 {
                     onlineUserEmails.Add(loginLog.Email);
                 }
             }
             User[] onlineUsers;
-            using(var db = new ShopDbContext())
+            using (var db = new ShopDbContext())
             {
                 onlineUsers = await db.Users.Where(u => onlineUserEmails.Contains(u.Email)).ToArrayAsync();
             }
@@ -131,105 +231,10 @@ namespace webbshop.Controller
                 string latestChangeString = addedProductLog.LastChangeDate.Year == 1 ? "" : "Senast ändrad " + addedProductLog.LastChangeDate + " av " + changeAdmin.Email;
                 if (admin != null && product != null)
                 {
-                    
+
                     Console.WriteLine($"{admin.Id}: {admin.Email}: La till produkten '{product.Name}' datumet {addedProductLog.AddedDate}, {latestChangeString}");
                 }
 
-            }
-        }
-        public enum SecurityLevel
-        {
-            Secure,
-            Unsecure,
-            VeryUnsecure
-        }
-        private async Task<User[]> GetUsersFromIds(int[] userIds)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Users.Where(u => userIds.Contains(u.Id)).ToArrayAsync();
-            }
-        }
-        private async Task<Product[]> GetProductsFromIds(int[] productIds)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Products.Where(p => productIds.Contains(p.Id)).ToArrayAsync();
-            }
-        }
-        
-        private async Task WriteOutUserSecurity()
-        {
-            LoginLog[] loginLogs = MongoConnection.GetLoginLogCollection().AsQueryable().ToArray();
-            string[] emails = loginLogs.Select(la => la.Email).ToArray();
-            User[] users = await GetUsersFromEmails(emails);
-
-
-            foreach (var user in users)
-            {
-                LoginLog? loginLog = loginLogs.Where(la => la.Email == user.Email).SingleOrDefault();
-                if(loginLog != null)
-                {
-                    SecurityLevel securityLvl = CalculateSecurity(loginLog);
-                    string securityString;
-                    switch(securityLvl)
-                    {
-                        case SecurityLevel.Unsecure:
-                            securityString = "Osäker";
-                            break;
-                        case SecurityLevel.VeryUnsecure:
-                            securityString = "Väldigt osäkert";
-                            break;
-                        default:
-                            securityString = "Säker";
-                            break;
-
-                    }
-                    Console.WriteLine($"{user.Email} | Konto säkerhet: {securityString} | Inloggning försök: {loginLog.LoginAttemptsAmount} | Inloggning försök som misslyckats: {loginLog.FailedLoginAttempts}");
-                }
-            }
-        }
-        private async Task<User[]> GetUsersFromEmails(string[] emails)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Users.Where(u => emails.Contains(u.Email)).ToArrayAsync();
-            }
-        }
-        private SecurityLevel CalculateSecurity(LoginLog attempt)
-        {
-            if (attempt.LoginAttemptsAmount < 5)
-            {
-                return SecurityLevel.Secure;
-            }
-
-            double failRatio = (double)attempt.FailedLoginAttempts / attempt.LoginAttemptsAmount * 100;
-
-            if (failRatio < 40)
-            {
-                return SecurityLevel.Secure;
-            }
-            else if (failRatio < 60)
-            {
-                return SecurityLevel.Unsecure;
-            }
-            else
-            {
-                return SecurityLevel.VeryUnsecure;
-            }
-                
-        }
-        private async Task<PaymentHistory[]> GetPaymentHistory()
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.PaymentHistories
-                    .Include(ph => ph.Product)
-                        .ThenInclude(p => p.Category)
-                    .Include(ph => ph.DeliveryCity)
-                        .ThenInclude(c => c.Country)
-                    .Include(ph => ph.User)
-                    .ToArrayAsync();
             }
         }
         private void WriteOutAverageAgeOnProducts(PaymentHistory[] paymentHistories)

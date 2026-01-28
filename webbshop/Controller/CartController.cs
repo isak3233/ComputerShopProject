@@ -16,10 +16,10 @@ namespace webbshop.Controller
         {
             List<CartProduct>? cartProducts = null;
             CartPage page = new CartPage();
-
+            int cartIndexOn = 0;
 
             cartProducts = await GetCartProducts(Cookie.User);
-            page.Update(cartProducts);
+            page.Update(cartProducts, cartIndexOn);
 
 
             while (true)
@@ -32,9 +32,10 @@ namespace webbshop.Controller
                 else
                 {
                     // Ta bort eller ändra antalet på en produkt i vagnen
-                    if(option.Value > 2 && (option.Value - 3) < cartProducts.Count)
+                    if(option.Value > 2 && (option.Value - 3) < 6)
                     {
-                        var cartProduct = cartProducts[option.Value - 3];
+                        int cartProductSelected = (option.Value - 3) + cartIndexOn;
+                        var cartProduct = cartProducts[cartProductSelected];
                         int[] result = InputHelper.GetCartProductOptionFromUser();
                         int cartProductOption = result[0];
                         int cartProductAmount = result[1];
@@ -47,7 +48,7 @@ namespace webbshop.Controller
                             await ChangeCartProductAmount(cartProduct, cartProductAmount);
                         }
                         cartProducts = await GetCartProducts(Cookie.User);
-                        page.Update(cartProducts);
+                        page.Update(cartProducts, cartIndexOn);
                     }
                     option -= 1;
                     switch ((Buttons)option)
@@ -56,6 +57,20 @@ namespace webbshop.Controller
                             return new HomePageController();
                         case Buttons.DeliveryOptions:
                             return new DeliveryController();
+                        case Buttons.ShowMore:
+                            if(cartIndexOn + 6 < cartProducts.Count)
+                            {
+                                cartIndexOn += 6;
+                            }
+                            page.Update(cartProducts, cartIndexOn);
+                            break;
+                        case Buttons.ShowLess:
+                            if (cartIndexOn - 6 >= 0)
+                            {
+                                cartIndexOn -= 6;
+                            }
+                            page.Update(cartProducts, cartIndexOn);
+                            break;
                         default:
                             page.Render();
                             break;

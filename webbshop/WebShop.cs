@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using webbshop.Controller;
@@ -14,7 +15,7 @@ namespace webbshop
         static public CancellationTokenSource Cts; // En variable som vi kan kalla cancel på för att stänga av metoder som beror på den
         public async Task StartWebShop()
         {
-            // Sätter upp vårat "Alarm" och ser till när konsol applikationen stängs av så skickar vi till databasen att vi logar ut
+            // När konsol applikationen stängs av så skickar vi till databasen att vi logar ut
             AppDomain.CurrentDomain.ProcessExit += async (sender, e) =>
             {
                 if (Cookie.User == null) return;
@@ -38,4 +39,5 @@ namespace webbshop
         }
 
     }
+ 
 }

@@ -20,6 +20,7 @@ namespace webbshop.Controller
                 Cookie.SelectedPaymentOption = 0;
             }
             PayPage page = new PayPage();
+            int payIndexOn = 0;
 
             var paymentOptionsT = GetPaymentOptions();
             var cartProductsT = CartController.GetCartProducts(Cookie.User);
@@ -29,7 +30,7 @@ namespace webbshop.Controller
             var cartProducts = (await cartProductsT).ToArray();
             var deliveryOptions = await deliveryOptionsT;
 
-            page.Update(paymentOptions, cartProducts, deliveryOptions);
+            page.Update(paymentOptions, cartProducts, deliveryOptions, payIndexOn);
 
             while (true)
             {
@@ -40,10 +41,10 @@ namespace webbshop.Controller
                 }
                 else
                 {
-                    if(option.Value - 3 >= 0 && option - 3 < paymentOptions.Length)
+                    if(option.Value - 5 >= 0 && option - 5 < paymentOptions.Length)
                     {
-                        Cookie.SelectedPaymentOption = option.Value - 3;
-                        page.Update(paymentOptions, cartProducts, deliveryOptions);
+                        Cookie.SelectedPaymentOption = option.Value - 5;
+                        page.Update(paymentOptions, cartProducts, deliveryOptions, payIndexOn);
                     }
                     option -= 1;
                     switch ((Buttons)option)
@@ -82,7 +83,20 @@ namespace webbshop.Controller
                             ThankYouPage thankYouPage = new ThankYouPage();
                             Console.ReadLine();
                             return new HomePageController();
-
+                        case Buttons.ShowMore:
+                            if (payIndexOn + 6 < cartProducts.Count())
+                            {
+                                payIndexOn += 6;
+                            }
+                            page.Update(paymentOptions, cartProducts, deliveryOptions, payIndexOn);
+                            break;
+                        case Buttons.ShowLess:
+                            if (payIndexOn - 6 >= 0)
+                            {
+                                payIndexOn -= 6;
+                            }
+                            page.Update(paymentOptions, cartProducts, deliveryOptions, payIndexOn);
+                            break;
                         default:
                             page.Render();
                             break;

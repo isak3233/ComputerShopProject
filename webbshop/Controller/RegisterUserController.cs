@@ -90,7 +90,10 @@ namespace webbshop.Controller
                                 try
                                 {
                                     await RegisterUser(newUser);
+                                    await LoginController.RegisterLogin(newUser, newUser.Email);
                                     Cookie.User = newUser;
+                                    WebShop.Cts = new CancellationTokenSource();
+                                    LoginController.StartUpdateLoginSessionLoop(WebShop.Cts.Token);
                                     Console.WriteLine("Användaren registerad");
                                     Console.ReadLine();
                                     return new HomePageController();

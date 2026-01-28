@@ -14,239 +14,330 @@ namespace webbshop.Controller
 {
     public class AdminController : IController
     {
+        private readonly DatabaseActions<Product> _productDb = new();
+        private readonly DatabaseActions<Supplier> _supplierDb = new();
+        private readonly DatabaseActions<Category> _categoryDb = new();
+        private readonly DatabaseActions<User> _userDb = new();
+        private readonly DatabaseActions<PaymentHistory> _paymentDb = new();
         public async Task<IController> ActivateController()
         {
+
             AdminPage page = new AdminPage();
 
             while (true)
             {
                 int? option = InputHelper.GetIntFromUser("", true);
+
                 if (option == null)
                 {
                     page.Render();
+                    continue;
                 }
-                else
+
+                option -= 1;
+
+                switch ((Buttons)option)
                 {
+                    case Buttons.HomePage:
+                        return new HomePageController();
 
-                    option -= 1;
-                    switch ((Buttons)option)
-                    {
-                        case Buttons.HomePage:
-                            return new HomePageController();
-                        case Buttons.AddProduct:
-                            Product newProduct = await GetProductInfoFromUser();
-                            try
-                            {
-                                await AddProduct(newProduct);
-                                AddMongoProduct(newProduct.Id, Cookie.User.Id);
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Något gick fel!");
-                            }
+                    case Buttons.AddProduct:
+                        await AddProductFlow();
+                        break;
 
-                            Console.WriteLine("Ny produkt har lagts till :)");
-                            break;
-                        case Buttons.RemoveProduct:
-                            await WriteOutAllProducts();
-                            int removeProductId = InputHelper.GetIntFromUser("Ange produkt id: ", true);
-                            Product? removedProduct = await GetProductFromId(removeProductId);
-                            if(removedProduct == null)
-                            {
-                                Console.WriteLine("Produkten finns inte");
-                                break;
-                            }
-                            try
-                            {
-                                await RemoveProduct(removeProductId);
-                                RemoveMongoProduct(removeProductId);
-                                Console.WriteLine("Produkten borttagen :)");
-                            } catch(Exception ex)
-                            {
-                                Console.WriteLine("Något gick fel");
-                                Console.WriteLine("Produkten kan inte tas bort om det finnas i Betalnings historiken eller finnas i användarnas kundvagnart");
-                            }
-                            
-                            
+                    case Buttons.RemoveProduct:
+                        await RemoveProductFlow();
+                        break;
 
-                            break;
-                        case Buttons.ChangeProduct:
-                            await WriteOutAllProducts();
-                            int changeProductId = InputHelper.GetIntFromUser("Ange produkt id: ", true);
-                            Product? product = await GetProductFromId(changeProductId);
-                            if (product == null)
-                            {
-                                Console.WriteLine("Produkten finns inte");
-                                break;
-                            }
-                            Product changedProduct = await ChangeProductValues(product);
-                            try
-                            {
-                                await UpdateProduct(changedProduct);
-                                ChangeMongoProduct(product.Id);
-                                Console.WriteLine("Produkten har nu ändrats :)");
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine("Något gick fel :(", ex);
-                            }
-                            
+                    case Buttons.ChangeProduct:
+                        await ChangeProductFlow();
+                        break;
 
-                            break;
-                        case Buttons.AddCategory:
-                            string newCategoryName = InputHelper.GetStringFromUser("Kategori namn: ");
-                            Category newCategory = new Category()
-                            {
-                                Name = newCategoryName,
-                            };
-                            await AddCategory(newCategory);
-                            Console.WriteLine("La till kategori");
-                            break;
-                        case Buttons.RemoveCategory:
-                            await WriteOutAllCategories();
-                            int removeCategoryId = InputHelper.GetIntFromUser("Kategori id: ", true);
-                            Category? removedCategory = await GetCategoryFromId(removeCategoryId);
-                            if(removedCategory == null)
-                            {
-                                Console.WriteLine("Kategorin finns inte");
-                                break;
-                            }
-                            try
-                            {
-                                await RemoveCategory(removeCategoryId);
-                                Console.WriteLine("Kategori borttagen!");
-                            } catch (Exception ex)
-                            {
-                                Console.WriteLine("Något gick fel :(");
-                                Console.WriteLine("Kan vara att det finns produkter under denna kategori!");
-                            }
-                            
-                            break;
-                        case Buttons.ChangeCategory:
-                            await WriteOutAllCategories();
-                            int changeCategoryId = InputHelper.GetIntFromUser("Kategori id: ", true);
-                            Category? changeCategory = await GetCategoryFromId(changeCategoryId);
-                            if(changeCategory == null )
-                            {
-                                Console.WriteLine("Kategori finns inte");
-                                break;
-                            }
+                    case Buttons.AddSupplier:
+                        await AddSupplierFlow();
+                        break;
 
-                            string changedCategoryName = InputHelper.GetStringFromUser("Nytt kategori namn: ");
-                            changeCategory.Name = changedCategoryName;
-                            await UpdateCategory(changeCategory);
-                            Console.WriteLine("Kategori ändrades :)");
-                            break;
-                        case Buttons.ChangeUserInfo:
-                            await WriteOutAllUsers();
-                            int changeUserId = InputHelper.GetIntFromUser("Använderens id: ", true);
-                            User? changeUser = await GetUserFromId(changeUserId);
-                            if (changeUser == null)
-                            {
-                                Console.WriteLine("Använderen finns inte");
-                                break;
-                            }
-                            if(changeUser.Id == Cookie.User.Id)
-                            {
-                                Console.WriteLine("Du kan inte ändra uppgifter på kontot du är inloggad på!");
-                                break;
-                            }
-                            User changedUser = await ChangeUserValues(changeUser);
-                            try
-                            {
-                                await UpdateUser(changedUser);
-                                if (changedUser.Email != changeUser.Email)
-                                {
-                                    
-                                    UpdateMongoUserEmail(changeUser.Email, changedUser.Email);
-                                }
+                    case Buttons.RemoveSupplier:
+                        await RemoveSupplierFlow();
+                        break;
 
-                                Console.WriteLine("Användarens uppgifter är ändrade");
-                            } catch(Exception ex)
-                            {
-                                Console.WriteLine("Lyckades inte ändra användarens uppgifter");
-                                break;
-                            }
-                            break;
-                        case Buttons.ChangePaymentHistory:
-                            await WriteOutAllUsers();
-                            int changePaymentUserId = InputHelper.GetIntFromUser("Användarens id: ", true);
-                            User? changePaymentUser = await GetUserFromId(changePaymentUserId);
-                            if(changePaymentUser == null)
-                            {
-                                Console.WriteLine("Användaren finns inte");
-                                break;
-                            }
-                            await WriteOutPaymentHistories(changePaymentUser);
-                            int changePaymentId = InputHelper.GetIntFromUser("Betalning historik id: ", true);
-                            PaymentHistory? changePayment = await GetPaymentHistory(changePaymentId, changePaymentUser.Id);
-                            if(changePayment == null)
-                            {
-                                Console.WriteLine("Betalning historiken finns inte");
-                                break;
-                            }
+                    case Buttons.ChangeSupplier:
+                        await ChangeSupplierFlow();
+                        break;
 
-                            PaymentHistory changedPayment = await ChangePaymentValues(changePayment);
-                            try
-                            {
-                                await UpdatePayment(changedPayment);
-                                Console.WriteLine("Ändrade betalning historiken!");
-                            } catch (Exception ex)
-                            {
-                                Console.WriteLine("Något gick fel :(");
-                            }
-                            
+                    case Buttons.AddCategory:
+                        await AddCategoryFlow();
+                        break;
 
-                            break;
-                        case Buttons.SendOrder:
-                            await WriteOutAllUsersWithOrders();
-                            int sendUserId = InputHelper.GetIntFromUser("Användarens id: ", true);
-                            User? sendUser = await GetUserFromId(sendUserId);
-                            if(sendUser == null)
-                            {
-                                Console.WriteLine("Användaren finns inte");
-                                break;
-                            }
-                            await WriteOutPaymentHistories(sendUser);
-                            int sendPaymentId = InputHelper.GetIntFromUser("Bestälnings id: ", true);
-                            PaymentHistory? sendPayment = await GetPaymentHistory(sendPaymentId, sendUserId);
-                            if(sendPayment == null)
-                            {
-                                Console.WriteLine("Bestälningen finns inte");
-                                break;
-                            }
-                            int? inventoryBalance = await GetStock(sendPayment.ProductId);
-                            if(inventoryBalance == null)
-                            {
-                                Console.WriteLine("Hittade inte produkten som var i bestälningen");
-                                break;
-                            }
-                            
-                            if(inventoryBalance - sendPayment.Amount >= 0)
-                            {
-                                await RemoveStock(sendPayment.ProductId, sendPayment.Amount);
-                                sendPayment.SendDate = DateTime.Now;
-                                await UpdatePayment(sendPayment);
-                                Console.WriteLine("Bestälning skickad");
-                            } else
-                            {
-                                Console.WriteLine("Det finns inte tillräckligt med produkter i vårat lager saldo för denna bestälning!");
-                            }
+                    case Buttons.RemoveCategory:
+                        await RemoveCategoryFlow();
+                        break;
 
-                                break;
-                        case Buttons.Stats:
-                            return new StatsController();
+                    case Buttons.ChangeCategory:
+                        await ChangeCategoryFlow();
+                        break;
 
+                    case Buttons.ChangeUserInfo:
+                        await ChangeUserFlow();
+                        break;
 
-                        default:
-                            page.Render();
-                            break;
-                    }
+                    case Buttons.ChangePaymentHistory:
+                        await ChangePaymentFlow();
+                        break;
+
+                    case Buttons.SendOrder:
+                        await SendOrderFlow();
+                        break;
+
+                    case Buttons.Stats:
+                        return new StatsController();
+
+                    default:
+                        page.Render();
+                        break;
                 }
-
             }
         }
-        
+        // Produkt Flow
+        private async Task AddProductFlow()
+        {
+            Product product = await GetProductInfoFromUser();
+
+            try
+            {
+                await _productDb.Execute(DbAction.Add, product);
+                await AddMongoProduct(product.Id, Cookie.User.Id);
+                Console.WriteLine("Ny produkt har lagts till :)");
+            }
+            catch
+            {
+                Console.WriteLine("Något gick fel!");
+            }
+        }
+
+        private async Task RemoveProductFlow()
+        {
+            await WriteOutAllProducts();
+            int id = InputHelper.GetIntFromUser("Ange produkt id: ", true);
+
+            Product? product = await _productDb.GetById(id);
+            if (product == null)
+            {
+                Console.WriteLine("Produkten finns inte");
+                return;
+            }
+
+            try
+            {
+                await _productDb.Execute(DbAction.Remove, product);
+                await RemoveMongoProduct(id);
+                Console.WriteLine("Produkten borttagen :)");
+            }
+            catch
+            {
+                Console.WriteLine("Produkten kan inte tas bort");
+            }
+        }
+
+        private async Task ChangeProductFlow()
+        {
+            await WriteOutAllProducts();
+            int id = InputHelper.GetIntFromUser("Ange produkt id: ", true);
+
+            Product? product = await _productDb.GetById(id);
+            if (product == null)
+            {
+                Console.WriteLine("Produkten finns inte");
+                return;
+            }
+
+            Product updated = await ChangeProductValues(product);
+
+            try
+            {
+                await _productDb.Execute(DbAction.Update, updated);
+                await ChangeMongoProduct(updated.Id);
+                Console.WriteLine("Produkten har ändrats :)");
+            }
+            catch
+            {
+                Console.WriteLine("Något gick fel");
+            }
+        }
+
+        // Levrantör Flow
+
+        private async Task AddSupplierFlow()
+        {
+            string name = InputHelper.GetStringFromUser("Levrantörens namn: ");
+            await _supplierDb.Execute(DbAction.Add, new Supplier { Name = name });
+            Console.WriteLine("La till levrantör");
+        }
+
+        private async Task RemoveSupplierFlow()
+        {
+            await WriteOutAllSuppliers();
+            int id = InputHelper.GetIntFromUser("Levrantör id: ", true);
+
+            Supplier? supplier = await _supplierDb.GetById(id);
+            if (supplier == null)
+            {
+                Console.WriteLine("Levrantören finns inte");
+                return;
+            }
+
+            try
+            {
+                await _supplierDb.Execute(DbAction.Remove, supplier);
+                Console.WriteLine("Levrantören borttagen!");
+            }
+            catch
+            {
+                Console.WriteLine("Kan finnas produkter kopplade till levrantören");
+            }
+        }
+
+        private async Task ChangeSupplierFlow()
+        {
+            await WriteOutAllSuppliers();
+            int id = InputHelper.GetIntFromUser("Levrantör id: ", true);
+
+            Supplier? supplier = await _supplierDb.GetById(id);
+            if (supplier == null)
+            {
+                Console.WriteLine("Levrantören finns inte");
+                return;
+            }
+
+            supplier.Name = InputHelper.GetStringFromUser("Nytt levrantörs namn: ");
+            await _supplierDb.Execute(DbAction.Update, supplier);
+            Console.WriteLine("Levrantören ändrades :)");
+        }
+
+        // Kategori Flow
+
+        private async Task AddCategoryFlow()
+        {
+            string name = InputHelper.GetStringFromUser("Kategori namn: ");
+            await _categoryDb.Execute(DbAction.Add, new Category { Name = name });
+            Console.WriteLine("La till kategori");
+        }
+
+        private async Task RemoveCategoryFlow()
+        {
+            await WriteOutAllCategories();
+            int id = InputHelper.GetIntFromUser("Kategori id: ", true);
+
+            Category? category = await _categoryDb.GetById(id);
+            if (category == null)
+            {
+                Console.WriteLine("Kategorin finns inte");
+                return;
+            }
+
+            try
+            {
+                await _categoryDb.Execute(DbAction.Remove, category);
+                Console.WriteLine("Kategori borttagen!");
+            }
+            catch
+            {
+                Console.WriteLine("Kan finnas produkter under denna kategori");
+            }
+        }
+
+        private async Task ChangeCategoryFlow()
+        {
+            await WriteOutAllCategories();
+            int id = InputHelper.GetIntFromUser("Kategori id: ", true);
+
+            Category? category = await _categoryDb.GetById(id);
+            if (category == null)
+            {
+                Console.WriteLine("Kategori finns inte");
+                return;
+            }
+
+            category.Name = InputHelper.GetStringFromUser("Nytt kategori namn: ");
+            await _categoryDb.Execute(DbAction.Update, category);
+            Console.WriteLine("Kategori ändrades :)");
+        }
+
+        // Användare Flow
+
+        private async Task ChangeUserFlow()
+        {
+            await WriteOutAllUsers();
+            int id = InputHelper.GetIntFromUser("Användarens id: ", true);
+
+            User? user = await _userDb.GetById(id);
+            if (user == null || user.Id == Cookie.User.Id)
+            {
+                Console.WriteLine("Ogiltig användare");
+                return;
+            }
+
+            User updated = await ChangeUserValues(user);
+
+            await _userDb.Execute(DbAction.Update, updated);
+
+            if (updated.Email != user.Email)
+                await UpdateMongoUserEmail(user.Email, updated.Email);
+
+            Console.WriteLine("Användarens uppgifter är ändrade");
+        }
+
+        // Betalning Flow
+
+        private async Task ChangePaymentFlow()
+        {
+            await WriteOutAllUsers();
+            int userId = InputHelper.GetIntFromUser("Användarens id: ", true);
+
+            User? user = await _userDb.GetById(userId);
+            if (user == null) return;
+
+            await WriteOutPaymentHistories(user);
+            int paymentId = InputHelper.GetIntFromUser("Betalning historik id: ", true);
+
+            PaymentHistory? payment = await GetPaymentHistory(paymentId, userId);
+            if (payment == null) return;
+
+            PaymentHistory updated = await ChangePaymentValues(payment);
+            await _paymentDb.Execute(DbAction.Update, updated);
+
+            Console.WriteLine("Ändrade betalning historiken!");
+        }
+
+        private async Task SendOrderFlow()
+        {
+            await WriteOutAllUsersWithOrders();
+            int userId = InputHelper.GetIntFromUser("Användarens id: ", true);
+
+            User? user = await _userDb.GetById(userId);
+            if (user == null) return;
+
+            await WriteOutPaymentHistories(user);
+            int paymentId = InputHelper.GetIntFromUser("Beställnings id: ", true);
+
+            PaymentHistory? payment = await GetPaymentHistory(paymentId, userId);
+            if (payment == null) return;
+
+            int? stock = await GetStock(payment.ProductId);
+            if (stock == null || stock - payment.Amount < 0)
+            {
+                Console.WriteLine("Otillräckligt lagersaldo");
+                return;
+            }
+
+            await RemoveStock(payment.ProductId, payment.Amount);
+            payment.SendDate = DateTime.Now;
+            await _paymentDb.Execute(DbAction.Update, payment);
+
+            Console.WriteLine("Beställning skickad");
+        }
+
+        // MongoDb metoder
         private async Task RemoveMongoProduct(int productId)
         {
             var filter = Builders<Models.AddedProduct>.Filter.Eq(p => p.ProductId, productId);
@@ -280,14 +371,8 @@ namespace webbshop.Controller
             loginLog.Email = newEmail;
             await MongoConnection.GetLoginLogCollection().ReplaceOneAsync(la => la.Id == loginLog.Id, loginLog);
         }
-        private async Task UpdateProduct(Product product)
-        {
-            using (var db = new ShopDbContext())
-            {
-                db.Products.Update(product);
-                await db.SaveChangesAsync();
-            }
-        }
+
+        // Metoder som hjälper användare ändra värden på objekt
         private async Task<Product> ChangeProductValues(Product product)
         {
             Console.WriteLine("Namn (1)");
@@ -329,161 +414,6 @@ namespace webbshop.Controller
                     return product;
             }
             return product;
-        }
-        private async Task<Product> GetProductInfoFromUser()
-        {
-            string productName = InputHelper.GetStringFromUser("Ange namn: ");
-
-            await WriteOutAllCategories();
-            int productCategoryId = InputHelper.GetIntFromUser("Kategori id:  ");
-
-            string productDetails = InputHelper.GetStringFromUser("Produktens beskrivning: ");
-
-            await WriteOutAllSuppliers();
-            int productSupplierId = InputHelper.GetIntFromUser("Levrantör id: ");
-
-            decimal productPrice = InputHelper.GetDecimalFromUser("Produktens pris: ");
-
-            int productAmount = InputHelper.GetIntFromUser("Antal produkter i lager saldo: ");
-
-            bool productSelected = InputHelper.GetBoolFromUser("Är denna produkt utvald för erbjudande, ja(1) nej(2): ");
-
-            Product newProduct = new Product()
-            {
-                Name = productName,
-                CategoryId = productCategoryId,
-                Details = productDetails,
-                SupplierId = productSupplierId,
-                Price = productPrice,
-                InventoryBalance = productAmount,
-                IsSelected = productSelected,
-
-            };
-            return newProduct;
-        }
-        private async Task RemoveProduct(int id)
-        {
-            using (var db = new ShopDbContext())
-            {
-                Product? product = await GetProductFromId(id);
-                if (product == null) return;
-                db.Products.Remove(product);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task AddProduct(Product newProduct)
-        {
-            using (var db = new ShopDbContext())
-            {
-                await db.Products.AddAsync(newProduct);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task WriteOutAllSuppliers()
-        {
-            using (var db = new ShopDbContext())
-            {
-                foreach (var supplier in await db.Suppliers.ToArrayAsync())
-                {
-                    Console.WriteLine($"{supplier.Id}: {supplier.Name}");
-                }
-            }
-        }
-        private async Task WriteOutAllCategories()
-        {
-            using (var db = new ShopDbContext())
-            {
-                foreach (var category in await db.Categories.ToArrayAsync())
-                {
-                    Console.WriteLine($"{category.Id}: {category.Name}");
-                }
-            }
-        }
-        private async Task WriteOutAllProducts()
-        {
-            using (var db = new ShopDbContext())
-            {
-                foreach (var product in await db.Products.ToArrayAsync())
-                {
-                    Console.WriteLine($"{product.Id}: {product.Name}");
-                }
-            }
-        }
-        private async Task<Product?> GetProductFromId(int id)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Products.FindAsync(id);
-            }
-        }
-        private async Task AddCategory(Category category)
-        {
-            using (var db = new ShopDbContext())
-            {
-                db.Categories.Add(category);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task RemoveCategory(int id)
-        {
-            using (var db = new ShopDbContext())
-            {
-                var category = await db.Categories.FindAsync(id);
-                if (category == null) return;
-                db.Categories.Remove(category);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task UpdateCategory(Category category)
-        {
-            using (var db = new ShopDbContext())
-            {
-                db.Categories.Update(category);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task<Category?> GetCategoryFromId(int id)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Categories.FindAsync(id);
-            }
-        }
-        private async Task WriteOutAllUsersWithOrders()
-        {
-            using (var db = new ShopDbContext())
-            {
-                var usersWithOrders = await db.Users
-                    .Where(u => u.PaymentHistories.Any())
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.Email
-                    })
-                    .ToListAsync();
-
-                foreach (var user in usersWithOrders)
-                {
-                    Console.WriteLine($"{user.Id}: {user.Email}");
-                }
-            }
-        }
-        private async Task WriteOutAllUsers()
-        {
-            using (var db = new ShopDbContext())
-            {
-                foreach (var user in await db.Users.ToArrayAsync())
-                {
-                    Console.WriteLine($"{user.Id}: {user.Email}");
-                }
-            }
-        }
-        private async Task<User?> GetUserFromId(int id)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.Users.FindAsync(id);
-            }
         }
         private async Task<User> ChangeUserValues(User user)
         {
@@ -560,48 +490,6 @@ namespace webbshop.Controller
             return returnUser;
 
         }
-        private async Task WriteOutAllCities()
-        {
-            using (var db = new ShopDbContext())
-            {
-                foreach(var city in await db.Cities.ToListAsync())
-                {
-                    Console.WriteLine($"{city.Id}: {city.Name}");
-                }
-            }
-        }
-        private async Task UpdateUser(User user)
-        {
-            using (var db = new ShopDbContext())
-            {
-                db.Users.Update(user);
-                await db.SaveChangesAsync();
-            }
-        }
-        private async Task WriteOutPaymentHistories(User user)
-        {
-            using (var db = new ShopDbContext())
-            {
-                PaymentHistory[] paymentHistories = await db.PaymentHistories
-                    .Include(p => p.Product)
-                    .Where(p => p.UserId == user.Id)
-                    .ToArrayAsync();
-                foreach (var paymentHistory in paymentHistories)
-                {
-                    string sendDate = paymentHistory.SendDate.Year == 1 ? "Inte skickad" : paymentHistory.SendDate.ToString();
-                    Console.WriteLine($"{paymentHistory.Id}: {user.Email}, {paymentHistory.Product.Name}, Antal:{paymentHistory.Amount}, Betalad:{paymentHistory.PayedDate}, Skickad: {sendDate}");
-                }
-            }
-        }
-        private async Task<PaymentHistory?> GetPaymentHistory(int id, int userId)
-        {
-            using (var db = new ShopDbContext())
-            {
-                return await db.PaymentHistories
-                    .Where(p => p.Id == id && p.UserId == userId)
-                    .SingleOrDefaultAsync();
-            }
-        }
         private async Task<PaymentHistory> ChangePaymentValues(PaymentHistory paymentHistory)
         {
             Console.WriteLine("Betalnings metod(1)");
@@ -616,7 +504,7 @@ namespace webbshop.Controller
 
             int option = InputHelper.GetIntFromUser("Vad vill du ändra: ");
 
-            switch(option)
+            switch (option)
             {
                 case 1:
                     await WriteOutPaymentMetods();
@@ -656,15 +544,101 @@ namespace webbshop.Controller
             return paymentHistory;
 
         }
+
+        // Utskrivft metoder
+        private async Task WriteOutAllSuppliers()
+        {
+            using (var db = new ShopDbContext())
+            {
+                foreach (var supplier in await db.Suppliers.ToArrayAsync())
+                {
+                    Console.WriteLine($"{supplier.Id}: {supplier.Name}");
+                }
+            }
+        }
+        private async Task WriteOutAllCategories()
+        {
+            using (var db = new ShopDbContext())
+            {
+                foreach (var category in await db.Categories.ToArrayAsync())
+                {
+                    Console.WriteLine($"{category.Id}: {category.Name}");
+                }
+            }
+        }
+        private async Task WriteOutAllProducts()
+        {
+            using (var db = new ShopDbContext())
+            {
+                foreach (var product in await db.Products.ToArrayAsync())
+                {
+                    Console.WriteLine($"{product.Id}: {product.Name}");
+                }
+            }
+        }
+        private async Task WriteOutAllUsersWithOrders()
+        {
+            using (var db = new ShopDbContext())
+            {
+                var usersWithOrders = await db.Users
+                    .Where(u => u.PaymentHistories.Any())
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Email
+                    })
+                    .ToListAsync();
+
+                foreach (var user in usersWithOrders)
+                {
+                    Console.WriteLine($"{user.Id}: {user.Email}");
+                }
+            }
+        }
+        private async Task WriteOutAllUsers()
+        {
+            using (var db = new ShopDbContext())
+            {
+                foreach (var user in await db.Users.ToArrayAsync())
+                {
+                    Console.WriteLine($"{user.Id}: {user.Email}");
+                }
+            }
+        }
+        private async Task WriteOutAllCities()
+        {
+            using (var db = new ShopDbContext())
+            {
+                foreach (var city in await db.Cities.ToListAsync())
+                {
+                    Console.WriteLine($"{city.Id}: {city.Name}");
+                }
+            }
+        }
+        private async Task WriteOutPaymentHistories(User user)
+        {
+            using (var db = new ShopDbContext())
+            {
+                PaymentHistory[] paymentHistories = await db.PaymentHistories
+                    .Include(p => p.Product)
+                    .Where(p => p.UserId == user.Id)
+                    .ToArrayAsync();
+                foreach (var paymentHistory in paymentHistories)
+                {
+                    string sendDate = paymentHistory.SendDate.Year == 1 ? "Inte skickad" : paymentHistory.SendDate.ToString();
+                    Console.WriteLine($"{paymentHistory.Id}: {user.Email}, {paymentHistory.Product.Name}, Antal:{paymentHistory.Amount}, Betalad:{paymentHistory.PayedDate}, Skickad: {sendDate}");
+                }
+            }
+        }
         private async Task WriteOutPaymentMetods()
         {
             using (var db = new ShopDbContext())
             {
-                foreach(var paymentOption in await db.PaymentOptions.ToArrayAsync())
+                foreach (var paymentOption in await db.PaymentOptions.ToArrayAsync())
                 {
                     Console.WriteLine($"{paymentOption.Id}: {paymentOption.Name}");
                 }
-                
+
             }
         }
         private async Task WriteOutDeliveryOptions()
@@ -678,13 +652,50 @@ namespace webbshop.Controller
 
             }
         }
-        private async Task UpdatePayment(PaymentHistory paymentOption)
+
+        
+        
+         // Hjälp metoder
+        private async Task<PaymentHistory?> GetPaymentHistory(int id, int userId)
         {
-            using(var db = new ShopDbContext())
+            using (var db = new ShopDbContext())
             {
-                db.PaymentHistories.Update(paymentOption);
-                await db.SaveChangesAsync();
+                return await db.PaymentHistories
+                    .Where(p => p.Id == id && p.UserId == userId)
+                    .SingleOrDefaultAsync();
             }
+        }
+
+        private async Task<Product> GetProductInfoFromUser()
+        {
+            string productName = InputHelper.GetStringFromUser("Ange namn: ");
+
+            await WriteOutAllCategories();
+            int productCategoryId = InputHelper.GetIntFromUser("Kategori id:  ");
+
+            string productDetails = InputHelper.GetStringFromUser("Produktens beskrivning: ");
+
+            await WriteOutAllSuppliers();
+            int productSupplierId = InputHelper.GetIntFromUser("Levrantör id: ");
+
+            decimal productPrice = InputHelper.GetDecimalFromUser("Produktens pris: ");
+
+            int productAmount = InputHelper.GetIntFromUser("Antal produkter i lager saldo: ");
+
+            bool productSelected = InputHelper.GetBoolFromUser("Är denna produkt utvald för erbjudande, ja(1) nej(2): ");
+
+            Product newProduct = new Product()
+            {
+                Name = productName,
+                CategoryId = productCategoryId,
+                Details = productDetails,
+                SupplierId = productSupplierId,
+                Price = productPrice,
+                InventoryBalance = productAmount,
+                IsSelected = productSelected,
+
+            };
+            return newProduct;
         }
         private async Task<int?> GetStock(int productId)
         {

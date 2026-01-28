@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using webbshop.Models;
 
-namespace webbshop
+namespace webbshop.Database
 {
     // Auto genererat av chatGPT
     public static class DatabaseSeeder

@@ -1,17 +1,20 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MongoDB.Driver;
 
-namespace webbshop
+namespace webbshop.Database
 {
     internal class MongoConnection
     {
         private static MongoClient GetClient()
         {
-            string connectionString = "mongodb+srv://kasity:Kebabrulle123@isakcluster.bzlbau2.mongodb.net/?appName=IsakCluster";
+
+            string connectionString = DatabaseStrings.MongoConnectionString;
             MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             var client = new MongoClient(settings);
             return client;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using webbshop.Database;
 
 namespace webbshop.Models
 {
@@ -23,7 +24,8 @@ namespace webbshop.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            
+            optionsBuilder.UseSqlServer(DatabaseStrings.SqlConnectionString);
             
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using webbshop.Controller;
+using webbshop.Database;
 using webbshop.Models;
 
 namespace webbshop

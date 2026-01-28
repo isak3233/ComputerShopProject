@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using webbshop.Database;
 using webbshop.Models;
 using webbshop.UI;
 using static webbshop.UI.LoginPage;

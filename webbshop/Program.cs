@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System;
+using webbshop.Database;
 using webbshop.UI;
 
 namespace webbshop
@@ -14,7 +16,13 @@ namespace webbshop
             //kund@shop.com
             //Password123!
 
-            
+            var config = new ConfigurationBuilder()
+                .AddUserSecrets<Program>()
+                .Build();
+            DatabaseStrings.SqlConnectionString = config["SqlConnectionString"];
+            DatabaseStrings.MongoConnectionString = config["MongoConnectionString"];
+
+
             WebShop webShop = new WebShop();
             await webShop.StartWebShop();
         }

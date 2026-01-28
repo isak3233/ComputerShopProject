@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 using webbshop.Models;
 using webbshop.UI;
 using static webbshop.UI.StatsPage;
+using webbshop.Database;
 
 namespace webbshop.Controller
 {
     internal class StatsController : IController
     {
         // För dapper
-        private string connectionString = "Server=tcp:webshop.database.windows.net,1433;Initial Catalog=WebshopDB;Persist Security Info=False;User ID=kasitydb;Password=Kebabrulle123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         public async Task<IController> ActivateController()
         {
             StatsPage page = new StatsPage();
@@ -239,7 +239,7 @@ namespace webbshop.Controller
         }
         private void WriteOutAverageAgeOnProducts(PaymentHistory[] paymentHistories)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(DatabaseStrings.SqlConnectionString);
             connection.Open();
 
             var result = connection.Query(@"
@@ -264,7 +264,7 @@ namespace webbshop.Controller
         }
         private void WriteOutCountryWithBestCustomers(PaymentHistory[] paymentHistories)
         {
-            using var connection = new SqlConnection(connectionString);
+            using var connection = new SqlConnection(DatabaseStrings.SqlConnectionString);
             connection.Open();
 
             var result = connection.Query(@"

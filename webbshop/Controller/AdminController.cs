@@ -631,7 +631,7 @@ namespace webbshop.Controller
                 foreach (var paymentHistory in paymentHistories)
                 {
                     string sendDate = paymentHistory.SendDate.Year == 1 ? "Inte skickad" : paymentHistory.SendDate.ToString();
-                    Console.WriteLine($"{paymentHistory.Id}: {user.Email}, {paymentHistory.Product.Name}, Antal:{paymentHistory.Amount}, Betalad:{paymentHistory.PayedDate}, Skickad: {sendDate}");
+                    Console.WriteLine($"{paymentHistory.Id}: {user.Email},\t {paymentHistory.Product.Name},\t Antal:{paymentHistory.Amount},\t Betalad:{paymentHistory.PayedDate},\t Skickad: {sendDate}");
                 }
             }
         }

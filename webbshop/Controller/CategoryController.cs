@@ -35,7 +35,11 @@ namespace webbshop.Controller
                     if (option > 1 && option < 8)
                     {
                         int categoriSelected = (option.Value - 2) + categoriIndexOn;
-                        return new ShopController(categories[categoriSelected]);
+                        if(categoriSelected < categories.Count)
+                        {
+                            return new ShopController(categories[categoriSelected]);
+                        }
+                        
                     }
                     option -= 1;
                     switch ((Buttons)option)
@@ -57,6 +61,7 @@ namespace webbshop.Controller
                             page.Update(categories, categoriIndexOn);
                             break;
                         default:
+                            page.Render();
                             break;
 
                     }

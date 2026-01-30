@@ -41,7 +41,11 @@ namespace webbshop.Controller
                     if(option > 2 && (option - 3) < 9)
                     {
                         int productSelected = (option.Value - 3) + productIndexOn;
-                        return new ProductController(products[productSelected]);
+                        if(productSelected < products.Length)
+                        {
+                            return new ProductController(products[productSelected]);
+                        }
+                        
 
                     }
 

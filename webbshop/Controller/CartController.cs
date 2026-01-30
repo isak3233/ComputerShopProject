@@ -35,20 +35,24 @@ namespace webbshop.Controller
                     if(option.Value > 2 && (option.Value - 3) < 6)
                     {
                         int cartProductSelected = (option.Value - 3) + cartIndexOn;
-                        var cartProduct = cartProducts[cartProductSelected];
-                        int[] result = InputHelper.GetCartProductOptionFromUser();
-                        int cartProductOption = result[0];
-                        int cartProductAmount = result[1];
-                        if(cartProductOption == 1)
+                        if(cartProductSelected < cartProducts.Count)
                         {
-                            await RemoveProductFromCart(cartProduct);
+                            var cartProduct = cartProducts[cartProductSelected];
+                            int[] result = InputHelper.GetCartProductOptionFromUser();
+                            int cartProductOption = result[0];
+                            int cartProductAmount = result[1];
+                            if (cartProductOption == 1)
+                            {
+                                await RemoveProductFromCart(cartProduct);
+                            }
+                            else if (cartProductOption == 2)
+                            {
+                                await ChangeCartProductAmount(cartProduct, cartProductAmount);
+                            }
+                            cartProducts = await GetCartProducts(Cookie.User);
+                            page.Update(cartProducts, cartIndexOn);
                         }
-                        else if(cartProductOption == 2)
-                        {
-                            await ChangeCartProductAmount(cartProduct, cartProductAmount);
-                        }
-                        cartProducts = await GetCartProducts(Cookie.User);
-                        page.Update(cartProducts, cartIndexOn);
+                        
                     }
                     option -= 1;
                     switch ((Buttons)option)
